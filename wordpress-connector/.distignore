@@ -1,0 +1,126 @@
+# A set of files you probably don't want in your WordPress plugin distribution
+
+# Version Control
+.git
+.github
+.gitignore
+.gitattributes
+.svn
+
+# Development Files
+node_modules
+src
+*.scss
+*.less
+*.coffee
+
+# Build Tools
+package.json
+package-lock.json
+yarn.lock
+composer.json
+composer.lock
+vendor/bin
+webpack.config.js
+webpack.mix.js
+tailwind.config.js
+postcss.config.js
+gulpfile.js
+Gruntfile.js
+build.sh
+Makefile
+.babelrc
+babel.config.js
+tsconfig.json
+jest.config.js
+
+# Linting & Formatting
+.eslintrc
+.eslintrc.js
+.eslintrc.json
+.eslintignore
+.prettierrc
+.prettierrc.js
+.prettierignore
+.stylelintrc
+.editorconfig
+.phpcs.xml
+phpcs.xml
+.phpcs.xml.dist
+phpcs.xml.dist
+
+# Testing
+tests
+test
+phpunit.xml
+phpunit.xml.dist
+.phpunit.result.cache
+.phpunit.cache
+cypress
+cypress.json
+cypress.config.js
+*.test.js
+*.spec.js
+
+# Documentation
+CONTRIBUTING.md
+CHANGELOG.md
+TODO.md
+docs
+documentation
+*.md
+!README.md
+
+# IDE & OS Files
+.vscode
+.idea
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary Files
+tmp
+temp
+cache
+*.tmp
+*.temp
+*.cache
+*.log
+error_log
+debug.log
+
+# Backup Files
+*.bak
+*.backup
+*.old
+*~
+*.orig
+*.rej
+
+# Build Directories
+build
+dist
+.distignore
+
+# Environment Files
+.env
+.env.*
+!.env.example
+
+# Map Files (optional - remove this line if you want to include source maps)
+*.map
+
+# Other
+.nvmrc
+.travis.yml
+.gitlab-ci.yml
+.scrutinizer.yml
+bitbucket-pipelines.yml
+.circleci
+renovate.json
+
+# WordPress.org assets (if you have them in your repo)
+.wordpress-org
+assets-wp-repo
