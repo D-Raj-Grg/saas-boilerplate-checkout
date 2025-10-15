@@ -1,0 +1,77 @@
+name: "Build and Deploy"
+
+on:
+  push:
+    branches:
+      - staging
+      - main
+
+# Cancels all previous workflow runs for pull requests that have not completed.
+concurrency:
+  # The concurrency group contains the workflow name and the branch name for pull requests
+  # or the commit hash for any other events.
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.PRIVATE_ACCESS_TOKEN }}
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Set environment name
+        run: |
+          if [ '${{github.ref}}' = 'refs/heads/staging' ]
+          then
+            echo "ENVIRONMENT=STAGING" >> $GITHUB_ENV
+            echo "APP_ENV=staging" >> $GITHUB_ENV
+            echo "APP_DEBUG=true" >> $GITHUB_ENV >> .env.staging
+            cp .env.staging .env.production
+            echo "User-agent: *" > public/robots.txt
+            echo "Disallow: /" >> public/robots.txt
+          fi
+          if [ '${{github.ref}}' = 'refs/heads/main' ]
+          then
+            echo "ENVIRONMENT=MAIN" >> $GITHUB_ENV
+            echo "APP_ENV=production" >> $GITHUB_ENV
+            echo "APP_DEBUG=false" >> $GITHUB_ENV >> .env.production
+          fi
+
+      - name: Lint
+        run: pnpm install --no-frozen-lockfile && pnpm run lint
+
+      - name: Rsync Deployment
+        uses: burnett01/rsync-deployments@5.2
+        with:
+          switches: -avzr --delete --exclude="node_modules" --exclude=".git"  --exclude=".gitignore" --exclude=".github" --exclude=".gitmodules"
+          remote_path: ${{ secrets[format('SSH_PATH_{0}', env.ENVIRONMENT)] }}
+          remote_host: ${{ secrets[format('SSH_HOST_{0}', env.ENVIRONMENT)] }}
+          remote_user: ${{ secrets[format('SSH_USERNAME_{0}', env.ENVIRONMENT)] }}
+          remote_key: ${{ secrets[format('SSH_KEY_{0}', env.ENVIRONMENT)] }}
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets[format('SSH_HOST_{0}', env.ENVIRONMENT)] }}
+          username: ${{ secrets[format('SSH_USERNAME_{0}', env.ENVIRONMENT)] }}
+          key: ${{ secrets[format('SSH_KEY_{0}', env.ENVIRONMENT)] }}
+          script: |
+            cd ${{ secrets[format('SSH_PATH_{0}', env.ENVIRONMENT)] }}
+            node -v
+            pnpm -v
+            pnpm install
+            pnpm deploy:${{env.APP_ENV}}
+          

@@ -1,0 +1,3 @@
+# [submodule "web/app/plugins/sign-in-with-google-one-tap"]
+# 	path = web/app/plugins/sign-in-with-google-one-tap
+# 	url = git@github.com:brainstormforce/sign-in-with-google-one-tap.git

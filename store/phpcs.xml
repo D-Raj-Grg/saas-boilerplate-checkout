@@ -1,0 +1,132 @@
+<?xml version="1.0"?>
+<ruleset name="Roots">
+	<description>Roots Coding Standards</description>
+
+  <rule ref="PHPCompatibility"/>
+	<config name="testVersion" value="7.4-"/>
+
+	<rule ref="WordPress-Core" >
+		<!-- Double arrow alignment requirement adds unwanted changes if you add/remove any parameter from the array -->
+		<exclude name="WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned" />
+		<exclude name="WordPress.PHP.DevelopmentFunctions.error_log_trigger_error" />
+		<exclude name="Generic.Formatting.MultipleStatementAlignment.NotSameWarning" />
+		<exclude name="WordPress.PHP.YodaConditions.NotYoda" />
+		<exclude name="WordPress.PHP.DisallowShortTernary.Found" />
+	</rule>
+
+	<rule ref="WordPress-Docs" >
+		<exclude name="Squiz.Commenting.FileComment.MissingPackageTag" />
+		<exclude-pattern>web/app/mu-plugins/wp-xray</exclude-pattern>
+		<exclude-pattern>/tests/php/</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress">
+		<!-- PSR4 -->
+		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+		<exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
+		<exclude name="Squiz.Commenting.FileComment.Missing" />
+		<exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid" />
+	</rule>
+
+	<!--
+	Restore the ability to have multiple arguments per line
+
+	WPCS disallowed this behavior in 1.1.0, but we'd like to keep it until
+	there is a reason to disallow multiple arguments.
+	Ref: https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards/commit/bb8a48671e213a5588a6439ea52411eeefab4b0f
+	-->
+	<rule ref="PEAR.Functions.FunctionCallSignature">
+		<properties>
+			<property name="allowMultipleArguments" value="true"/>
+		</properties>
+	</rule>
+
+	<rule ref="PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket">
+		<severity phpcs-only="true">0</severity>
+	</rule>
+	<rule ref="PEAR.Functions.FunctionCallSignature.CloseBracketLine">
+		<severity phpcs-only="true">0</severity>
+	</rule>
+	<rule ref="Squiz.Commenting.FunctionComment.SpacingAfterParamType">
+		<severity phpcs-only="true">0</severity>
+	</rule>
+
+	<rule ref="Generic.ControlStructures.DisallowYodaConditions"/>
+    <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
+
+	<!-- Show sniff codes in all reports -->
+	<arg value="s"/>
+
+	<rule ref="Generic.Arrays.DisallowShortArraySyntax.Found">
+		<severity>0</severity>
+	</rule>
+
+	<rule ref="Generic.Arrays.DisallowLongArraySyntax.Found">
+		<type>warning</type>
+	</rule>
+
+	<rule ref="Squiz.PHP.DisallowMultipleAssignments.Found">
+		<!-- See https://github.com/squizlabs/PHP_CodeSniffer/issues/1277 -->
+		<severity>0</severity>
+	</rule>
+
+
+	<!-- Scan all files in directory -->
+	<file>.</file>
+
+	<rule ref="WordPress.Files.FileName.InvalidClassFileName">
+		<exclude-pattern>/tests/php/</exclude-pattern>
+	</rule>
+
+	<!-- Scan only PHP files -->
+	<arg name="extensions" value="php"/>
+
+	<!-- Ignore WordPress and Composer dependencies -->
+	<exclude-pattern>*/exporters/class-widget-exporter.php</exclude-pattern>
+	<exclude-pattern>web/wp</exclude-pattern>
+	<exclude-pattern>config/</exclude-pattern>
+	<exclude-pattern>tests/</exclude-pattern>
+	<exclude-pattern>vendor/</exclude-pattern>
+	<exclude-pattern>node_modules/</exclude-pattern>
+	<exclude-pattern>**/build/**</exclude-pattern>
+	<exclude-pattern>**/uploads/**</exclude-pattern>
+
+	<exclude-pattern>web/index.php</exclude-pattern>
+
+	<!-- Exclude mu-plugins -->
+	<exclude-pattern>web/app/mu-plugins/saas-ap-backend/</exclude-pattern>
+	<exclude-pattern>web/app/mu-plugins/surecart/</exclude-pattern>
+	<exclude-pattern>web/app/mu-plugins/user-activation/</exclude-pattern>
+	<exclude-pattern>web/app/mu-plugins/user-registration/</exclude-pattern>
+	<exclude-pattern>web/app/mu-plugins/wp-xray/</exclude-pattern>
+	<exclude-pattern>web/app/mu-plugins/aws-ses-wp-mail/</exclude-pattern>
+	<exclude-pattern>web/app/mu-plugins/bedrock-disallow-indexing/</exclude-pattern>
+	<exclude-pattern>web/app/mu-plugins/easy-digital-downloads/</exclude-pattern>
+	<exclude-pattern>web/app/mu-plugins/edd-software-licensing/</exclude-pattern>
+	<exclude-pattern>web/app/mu-plugins/edd-recurring/</exclude-pattern>
+	<exclude-pattern>web/app/mu-plugins/edd-invoices/</exclude-pattern>
+	<exclude-pattern>web/app/mu-plugins/stream/</exclude-pattern>
+
+	<!-- Exclude plugins -->
+	<exclude-pattern>web/app/plugins/edd-manual-purchases</exclude-pattern>
+	<exclude-pattern>web/app/plugins/wp-phpmyadmin-extension</exclude-pattern>
+	<exclude-pattern>web/app/plugins/elementor</exclude-pattern>
+	<exclude-pattern>web/app/plugins/query-monitor</exclude-pattern>
+	<exclude-pattern>web/app/plugins/safe-svg</exclude-pattern>
+	<exclude-pattern>web/app/plugins/sign-in-with-google-one-tap</exclude-pattern>
+	<exclude-pattern>web/app/plugins/user-registration</exclude-pattern>
+	<exclude-pattern>web/app/plugins/user-switching</exclude-pattern>
+	<exclude-pattern>web/app/plugins/wps-hide-login</exclude-pattern>
+	<exclude-pattern>web/app/plugins/post-smtp</exclude-pattern>
+
+	<!-- Exclude themes -->
+	<exclude-pattern>web/app/themes/index.php</exclude-pattern>
+	<exclude-pattern>web/app/themes/astra/</exclude-pattern>
+	<exclude-pattern>web/app/themes/astra-child/</exclude-pattern>
+
+	<!-- Show colors in console -->
+	<arg value="-colors"/>
+
+	<!-- Show sniff codes in all reports -->
+	<arg value="ns"/>
+</ruleset>

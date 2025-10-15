@@ -1,0 +1,146 @@
+{
+  "name": "brainstormforce/bsf-saas-billing",
+  "type": "project",
+  "description": "BSF SaaS Billing Store",
+  "homepage": "https://brainstormforce.com",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Brainstorm Force",
+      "email": "hello@bsf.io",
+      "homepage": "https://github.com/brainstormforce/bsf-saas-billing"
+    }
+  ],
+  "require": {
+    "php": ">=7.4",
+    "composer/installers": "^1.11",
+    "oscarotero/env": "^2.1",
+    "roots/bedrock-autoloader": "^1.0",
+    "roots/bedrock-disallow-indexing": "^2.0",
+    "roots/wordpress": "*",
+    "roots/wp-config": "1.0.0",
+    "roots/wp-password-bcrypt": "1.1.0",
+    "vlucas/phpdotenv": "^5.3",
+    "wpackagist-plugin/surecart": "*",
+    "wpackagist-plugin/safe-svg": "^2.2.5",
+    "wpackagist-plugin/wps-hide-login": "^1.9.3",
+    "wpackagist-theme/astra": "^4.8.0",
+    "ext-json": "*",
+    "wpackagist-plugin/suretriggers": "*",
+    "wpackagist-plugin/user-role-editor": "^4.63.3",
+    "wpackagist-plugin/ultimate-addons-for-gutenberg": "^2.19",
+    "wpackagist-plugin/convertbox-auto-embed": "*",
+    "wpackagist-plugin/official-facebook-pixel": "^4.0",
+    "wpackagist-plugin/sureforms": "*",
+    "wpackagist-plugin/unlist-posts": "^1.1.9",
+    "private/wp-fusion": "^3.44",
+    "private/astra-addon": "^4.11.0",
+    "private/spectra-pro": "^1.2",
+    "private/sureforms-pro": "^1.8.0"
+  },
+  "require-dev": {
+    "dealerdirect/phpcodesniffer-composer-installer": "0.7.2",
+    "phpcompatibility/phpcompatibility-wp": "*",
+    "phpunit/phpunit": "^9",
+    "roave/security-advisories": "dev-master",
+    "wp-coding-standards/wpcs": "dev-main",
+    "wp-phpunit/wp-phpunit": "^5",
+    "yoast/phpunit-polyfills": "^1.0"
+  },
+  "config": {
+    "platform": {
+      "php": "7.4"
+    },
+    "allow-plugins": {
+      "composer/installers": true,
+      "dealerdirect/phpcodesniffer-composer-installer": true,
+      "roots/wordpress-core-installer": true
+    },
+    "optimize-autoloader": true,
+    "preferred-install": "dist"
+  },
+  "extra": {
+    "installer-paths": {
+      "web/app/mu-plugins/{$name}/": [
+        "type:wordpress-muplugin"
+      ],
+      "web/app/plugins/{$name}/": [
+        "type:wordpress-plugin"
+      ],
+      "web/app/themes/{$name}/": [
+        "type:wordpress-theme"
+      ]
+    },
+    "wordpress-install-dir": "web/wp"
+  },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://wpackagist.org",
+      "only": [
+        "wpackagist-plugin/*",
+        "wpackagist-theme/*"
+      ]
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "private/wp-fusion",
+        "version": "3.44.23",
+        "dist": {
+          "url": "private-plugins/wp-fusion.zip",
+          "type": "zip"
+        },
+        "type": "wordpress-plugin"
+      }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "private/astra-addon",
+        "version": "4.11.0",
+        "dist": {
+          "url": "private-plugins/astra-addon-4.11.zip",
+          "type": "zip"
+        },
+        "type": "wordpress-plugin"
+      }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "private/spectra-pro",
+        "version": "1.2.0",
+        "dist": {
+          "url": "private-plugins/spectra-pro.zip",
+          "type": "zip"
+        },
+        "type": "wordpress-plugin"
+      }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "private/sureforms-pro",
+        "version": "1.8.0",
+        "dist": {
+          "url": "private-plugins/sureforms-pro-1.8.0.zip",
+          "type": "zip"
+        },
+        "type": "wordpress-plugin"
+      }
+    }
+  ],
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "scripts": {
+    "post-root-package-install": [
+      "php -r \"copy('.env.example', '.env');\""
+    ],
+    "phpcbf": "./vendor/bin/phpcbf",
+    "phpcs": "./vendor/bin/phpcs -p",
+    "test": [
+      "phpunit"
+    ]
+  }
+}

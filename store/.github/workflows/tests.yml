@@ -1,0 +1,71 @@
+name: Tests
+
+on:
+  pull_request:
+    branches:
+      - 'development'
+
+# Cancels all previous workflow runs for pull requests that have not completed.
+concurrency:
+    # The concurrency group contains the workflow name and the branch name for pull requests
+    # or the commit hash for any other events.
+    group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
+    cancel-in-progress: true
+
+jobs:
+  phpunit:
+    name: PHPUnit
+    runs-on: ubuntu-latest
+
+    env:
+        DB_HOST: 127.0.0.1
+        DB_NAME: local
+        DB_USER: root
+        DB_PASS: root
+
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+           MYSQL_ALLOW_EMPTY_PASSWORD: yes
+           MYSQL_DATABASE: local
+           MYSQL_ROOT_PASSWORD: root
+        ports:
+           - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+          token: ${{ secrets.PRIVATE_ACCESS_TOKEN }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.4
+          extensions: mysqli, xmlwriter
+
+      - uses: iamsauravsharma/create-dotenv@v1.2.1
+        with:
+            env-prefix: 'ENV_KEY_'
+        env:
+          ENV_KEY_DB_NAME: local
+          ENV_KEY_DB_USER: root
+          ENV_KEY_DB_PASSWORD: root
+          ENV_KEY_DB_PREFIX: tests_
+
+          ENV_KEY_WP_ENV: test
+          ENV_KEY_WP_ENVIRONMENT_TYPE: tests
+          ENV_KEY_WP_HOME: ${{ secrets[format('WP_HOME_{0}', env.ENVIRONMENT)] }}
+          ENV_KEY_WP_SITEURL: "${WP_HOME}/wp"
+
+      - name: Composer Install
+        uses: "ramsey/composer-install@v1"
+
+      - name: Setup problem matchers for PHPUnit
+        run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
+#      - name: Run the tests
+#        run: composer test

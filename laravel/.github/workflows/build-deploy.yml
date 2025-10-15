@@ -1,0 +1,61 @@
+name: "Build and Deploy"
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+
+# Cancels all previous workflow runs for pull requests that have not completed.
+concurrency:
+  # The concurrency group contains the workflow name and the branch name for pull requests
+  # or the commit hash for any other events.
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.PRIVATE_ACCESS_TOKEN }}
+
+      - name: Set environment name
+        run: |
+          if [ '${{github.ref}}' = 'refs/heads/staging' ]
+          then
+            echo "ENVIRONMENT=STAGING" >> $GITHUB_ENV
+            echo "APP_ENV=staging" >> $GITHUB_ENV
+            echo "APP_DEBUG=false" >> $GITHUB_ENV
+          fi
+          if [ '${{github.ref}}' = 'refs/heads/main' ]
+          then
+            echo "ENVIRONMENT=MAIN" >> $GITHUB_ENV
+            echo "APP_ENV=production" >> $GITHUB_ENV
+            echo "APP_DEBUG=false" >> $GITHUB_ENV
+          fi
+
+      - name: Generate ENV files
+        run: |
+          echo ${{ secrets[format('ENV_FILE_{0}', env.ENVIRONMENT)] }} | base64 --decode > .env
+          
+      - name: Rsync Deployment
+        uses: burnett01/rsync-deployments@master
+        with:
+          switches: -avzr --delete --exclude="storage/logs/" --exclude="public/storage/" --exclude="storage/app/public/screenshots/" --exclude="node_modules" --exclude=".git" --exclude="*.md" --exclude=".gitignore"  --exclude="package.json"  --exclude="package-lock.json" --exclude=".github" --exclude=".gitmodules" --exclude="phpcs.xml" --exclude="frankenphp" --exclude="public/frankenphp-worker.php" --exclude="caddy/"
+          remote_path: ${{ secrets[format('SSH_PATH_{0}', env.ENVIRONMENT)] }}
+          remote_host: ${{ secrets[format('SSH_HOST_{0}', env.ENVIRONMENT)] }}
+          remote_user: ${{ secrets[format('SSH_USERNAME_{0}', env.ENVIRONMENT)] }}
+          remote_key: ${{ secrets[format('SSH_KEY_{0}', env.ENVIRONMENT)] }}
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets[format('SSH_HOST_{0}', env.ENVIRONMENT)] }}
+          username: ${{ secrets[format('SSH_USERNAME_{0}', env.ENVIRONMENT)] }}
+          key: ${{ secrets[format('SSH_KEY_{0}', env.ENVIRONMENT)] }}
+          script: |
+            cd ${{ secrets[format('SSH_PATH_{0}', env.ENVIRONMENT)] }}
+            sh .scripts/deploy.sh

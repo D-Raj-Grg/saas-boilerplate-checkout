@@ -1,0 +1,481 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Parameter \#2 \$user of method App\\Services\\WorkspaceService\:\:addUser\(\) expects App\\Models\\User, App\\Models\\User\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\User\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/V1/WorkspaceController.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\LoginRequest\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/LoginRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\LoginRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/LoginRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Organization\\CreateOrganizationRequest\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Organization/CreateOrganizationRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Organization\\UpdateOrganizationRequest\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Organization/UpdateOrganizationRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\RegisterRequest\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/RegisterRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\RegisterRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/RegisterRequest.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\InvitationResource\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/InvitationResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\InvitationResource\:\:\$expires_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/InvitationResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\InvitationResource\:\:\$inviter\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Resources/InvitationResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\InvitationResource\:\:\$message\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/InvitationResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\InvitationResource\:\:\$role\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/InvitationResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\InvitationResource\:\:\$token\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/InvitationResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\InvitationResource\:\:\$workspace\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Http/Resources/InvitationResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\OrganizationResource\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/OrganizationResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\OrganizationResource\:\:\$description\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/OrganizationResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\OrganizationResource\:\:\$members_count\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/OrganizationResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\OrganizationResource\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/OrganizationResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\OrganizationResource\:\:\$owner\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/OrganizationResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\OrganizationResource\:\:\$slug\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/OrganizationResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\OrganizationResource\:\:\$updated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/OrganizationResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\OrganizationResource\:\:\$uuid\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/OrganizationResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\OrganizationResource\:\:\$workspaces_count\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/OrganizationResource.php
+
+		-
+			message: '#^Call to an undefined method App\\Http\\Resources\\OrganizationResource\:\:workspaces\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Resources/OrganizationResource.php
+
+		-
+			message: '#^Property App\\Jobs\\SendInvitationEmail\:\:\$timeout has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: app/Jobs/SendInvitationEmail.php
+
+		-
+			message: '#^Property App\\Jobs\\SendInvitationEmail\:\:\$tries has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: app/Jobs/SendInvitationEmail.php
+
+		-
+			message: '#^Property App\\Jobs\\SendPasswordResetEmail\:\:\$timeout has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: app/Jobs/SendPasswordResetEmail.php
+
+		-
+			message: '#^Property App\\Jobs\\SendPasswordResetEmail\:\:\$tries has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: app/Jobs/SendPasswordResetEmail.php
+
+		-
+			message: '#^Class App\\Models\\Organization uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Organization.php
+
+		-
+			message: '#^Method App\\Models\\Organization\:\:defaultWorkspace\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/Organization.php
+
+		-
+			message: '#^Method App\\Models\\Organization\:\:findBySlug\(\) should return static\(App\\Models\\Organization\)\|null but returns App\\Models\\Organization\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/Organization.php
+
+		-
+			message: '#^Method App\\Models\\Organization\:\:findBySlugOrFail\(\) should return static\(App\\Models\\Organization\) but returns App\\Models\\Organization\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/Organization.php
+
+		-
+			message: '#^Class App\\Models\\Plan uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Plan.php
+
+		-
+			message: '#^Method App\\Models\\Plan\:\:scopeActive\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/Plan.php
+
+		-
+			message: '#^Method App\\Models\\Plan\:\:scopeActive\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/Plan.php
+
+		-
+			message: '#^Parameter \#1 \$num of function number_format expects float, string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Models/Plan.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Relations\\Pivot\:\:\$role\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:accessibleOrganizations\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Class App\\Models\\UserVerification uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/UserVerification.php
+
+		-
+			message: '#^Method App\\Models\\UserVerification\:\:scopeByType\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/UserVerification.php
+
+		-
+			message: '#^Method App\\Models\\UserVerification\:\:scopeByType\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/UserVerification.php
+
+		-
+			message: '#^Method App\\Models\\UserVerification\:\:scopeValid\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/UserVerification.php
+
+		-
+			message: '#^Method App\\Models\\UserVerification\:\:scopeValid\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/UserVerification.php
+
+		-
+			message: '#^Method App\\Models\\UserVerification\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/UserVerification.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Relations\\Pivot\:\:\$role\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Workspace.php
+
+		-
+			message: '#^Class App\\Models\\Workspace uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Workspace.php
+
+		-
+			message: '#^Method App\\Models\\Workspace\:\:findBySlug\(\) should return static\(App\\Models\\Workspace\)\|null but returns App\\Models\\Workspace\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/Workspace.php
+
+		-
+			message: '#^Method App\\Models\\Workspace\:\:findBySlugOrFail\(\) should return static\(App\\Models\\Workspace\) but returns App\\Models\\Workspace\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/Workspace.php
+
+		-
+			message: '#^Method App\\Models\\Workspace\:\:invitations\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Workspace.php
+
+		-
+			message: '#^Method App\\Models\\Workspace\:\:organization\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Workspace.php
+
+		-
+			message: '#^Method App\\Models\\Workspace\:\:pendingInvitations\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Workspace.php
+
+		-
+			message: '#^Method App\\Models\\Workspace\:\:setting\(\) should return Illuminate\\Database\\Eloquent\\Relations\\HasOne\<App\\Models\\WorkspaceSetting, App\\Models\\Workspace\> but returns Illuminate\\Database\\Eloquent\\Relations\\HasOne\<App\\Models\\WorkspaceSetting, \$this\(App\\Models\\Workspace\)\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/Workspace.php
+
+		-
+			message: '#^Method App\\Models\\Workspace\:\:users\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Workspace.php
+
+		-
+			message: '#^Method App\\Models\\WorkspaceSetting\:\:workspace\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Workspace, App\\Models\\WorkspaceSetting\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Workspace, \$this\(App\\Models\\WorkspaceSetting\)\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/WorkspaceSetting.php
+
+		-
+			message: '#^Class App\\Models\\WorkspaceUser uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/WorkspaceUser.php
+
+		-
+			message: '#^Method App\\Models\\WorkspaceUser\:\:invitedBy\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/WorkspaceUser.php
+
+		-
+			message: '#^Method App\\Models\\WorkspaceUser\:\:scopeWithRole\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/WorkspaceUser.php
+
+		-
+			message: '#^Method App\\Models\\WorkspaceUser\:\:scopeWithRole\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/WorkspaceUser.php
+
+		-
+			message: '#^Method App\\Models\\WorkspaceUser\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/WorkspaceUser.php
+
+		-
+			message: '#^Method App\\Models\\WorkspaceUser\:\:workspace\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/WorkspaceUser.php
+
+		-
+			message: '#^Method App\\Services\\InvitationService\:\:getInvitationsByEmail\(\) return type with generic class Illuminate\\Database\\Eloquent\\Collection does not specify its types\: TKey, TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Services/InvitationService.php
+
+		-
+			message: '#^Method App\\Services\\InvitationService\:\:getInvitationsByInviter\(\) return type with generic class Illuminate\\Database\\Eloquent\\Collection does not specify its types\: TKey, TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Services/InvitationService.php
+
+		-
+			message: '#^Method App\\Services\\OrganizationService\:\:delete\(\) should return bool but returns bool\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/OrganizationService.php
+
+		-
+			message: '#^Method App\\Services\\OrganizationService\:\:getAccessibleOrganizations\(\) return type with generic class Illuminate\\Database\\Eloquent\\Collection does not specify its types\: TKey, TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Services/OrganizationService.php
+
+		-
+			message: '#^Method App\\Services\\OrganizationService\:\:getLimits\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/OrganizationService.php
+
+		-
+			message: '#^Method App\\Services\\OrganizationService\:\:update\(\) should return App\\Models\\Organization but returns App\\Models\\Organization\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/OrganizationService.php
+
+		-
+			message: '#^Parameter \#1 \.\.\.\$arrays of function array_merge expects array, array\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/OrganizationService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/WorkspaceService.php
+
+		-
+			message: '#^If condition is always true\.$#'
+			identifier: if.alwaysTrue
+			count: 1
+			path: app/Services/WorkspaceService.php
+
+		-
+			message: '#^Method App\\Services\\WorkspaceService\:\:delete\(\) should return bool but returns bool\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/WorkspaceService.php
+
+		-
+			message: '#^Method App\\Services\\WorkspaceService\:\:getAccessibleWorkspaces\(\) return type with generic class Illuminate\\Database\\Eloquent\\Collection does not specify its types\: TKey, TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Services/WorkspaceService.php
+
+		-
+			message: '#^Method App\\Services\\WorkspaceService\:\:getMembers\(\) return type with generic class Illuminate\\Database\\Eloquent\\Collection does not specify its types\: TKey, TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Services/WorkspaceService.php
+
+		-
+			message: '#^Method App\\Services\\WorkspaceService\:\:getUsageMetrics\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/WorkspaceService.php
+
+		-
+			message: '#^Method App\\Services\\WorkspaceService\:\:update\(\) should return App\\Models\\Workspace but returns App\\Models\\Workspace\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/WorkspaceService.php
+
+		-
+			message: '#^Parameter \#1 \$organization of method App\\Services\\OrganizationService\:\:getLimits\(\) expects App\\Models\\Organization, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/WorkspaceService.php
+
+		-
+			message: '#^Parameter \#1 \$organization of method App\\Services\\WorkspaceService\:\:create\(\) expects App\\Models\\Organization, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/WorkspaceService.php
+
+		-
+			message: '#^Parameter \#1 \.\.\.\$arrays of function array_merge expects array, array\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/WorkspaceService.php
+
+		-
+			message: '#^Parameter \#2 \$user of method App\\Services\\WorkspaceService\:\:addUser\(\) expects App\\Models\\User, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/WorkspaceService.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: app/Services/WorkspaceService.php
+
+		-
+			message: '#^Trait App\\Traits\\Trackable is used zero times and is not analysed\.$#'
+			identifier: trait.unused
+			count: 1
+			path: app/Traits/Trackable.php

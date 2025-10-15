@@ -1,0 +1,15 @@
+name: PR Title Check
+'on':
+  pull_request:
+    branches:
+      - staging
+      - main
+jobs:
+  PR-TITLE:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: PR Title Check
+        uses: naveenk1223/action-pr-title@master
+        with:
+          regex: '^(SC)-\d+:\s.+'

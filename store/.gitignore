@@ -1,0 +1,54 @@
+# Themes
+web/app/themes/*
+!web/app/themes/astra-child
+web/app/themes/astra-child/node_modules
+# Plugins
+web/app/plugins/*
+!web/app/plugins/.gitkeep
+!web/app/plugins/sign-in-with-google-one-tap
+!web/app/plugins/edd-
+
+# MU Plugins
+web/app/mu-plugins/*
+!web/app/mu-plugins/bedrock-autoloader.php
+!web/app/mu-plugins/surecart
+!web/app/mu-plugins/bsf-saas-custom-billing
+!web/app/mu-plugins/bsf-saas-billing
+
+web/app/node_modules
+
+web/app/upgrade
+web/app/uploads/*
+!web/app/uploads/.gitkeep
+
+# WordPress
+web/wp
+web/.htaccess
+
+# Logs
+*.log
+
+# Dotenv
+.env
+.env.*
+!.env.example
+
+# Composer
+/vendor
+
+/profiler
+
+# WP-CLI
+wp-cli.local.yml
+.DS_Store
+*.sql
+
+# Node modules
+/node_modules
+.phpunit.result.cache
+.idea
+.history
+
+#editor settings
+.vscode
+

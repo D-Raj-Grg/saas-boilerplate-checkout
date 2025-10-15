@@ -1,0 +1,65 @@
+import type { Metadata } from "next";
+import { Figtree } from "next/font/google";
+import Script from "next/script";
+import { Toaster } from "@/components/ui/sonner";
+import "./globals.css";
+
+const figtree = Figtree({
+  variable: "--font-figtree",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+});
+
+export const metadata: Metadata = {
+  title: `${process.env.NEXT_PUBLIC_APP_NAME} turns unsure into sure.`,
+  description: `${process.env.NEXT_PUBLIC_APP_NAME} turns unsure into sure by showing you exactly what works - powered by real data, not guesswork`,
+  icons: {
+    icon: [
+      {
+        url: '/icon.svg',
+        type: 'image/svg+xml',
+      },
+    ],
+    apple: [
+      {
+        url: '/apple-icon.svg',
+        type: 'image/svg+xml',
+      },
+    ],
+  },
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body
+        className={`${figtree.variable} font-sans antialiased`}
+      >
+        <Script
+          id="surecart-config"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `window.SureCartAffiliatesConfig = {"publicToken":"pt_Yq2qgtPqLNZ9e9V92RFyLeZv"};`,
+          }}
+        />
+        <Script
+          src="https://js.surecart.com/v1/affiliates"
+          strategy="afterInteractive"
+        />
+        <Script
+          id="convertbox-embed"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `!function(e,t){(e=t.createElement("script")).src="https://cdn.convertbox.com/convertbox/js/embed.js",e.id="app-convertbox-script",e.async=true,e.dataset.uuid="6d500fae-141a-4ca6-bf51-8f4e89bf91b0",document.getElementsByTagName("head")[0].appendChild(e)}(window,document);`,
+          }}
+        />
+        {children}
+        <Toaster richColors position="top-right" />
+      </body>
+    </html>
+  );
+}

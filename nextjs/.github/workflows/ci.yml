@@ -1,0 +1,30 @@
+name: CI Lint
+
+on:
+  pull_request:
+    branches:    
+      - 'main'
+
+jobs:
+  lint-and-audit:
+
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
+        token: ${{ secrets.PRIVATE_ACCESS_TOKEN }}
+    - uses: pnpm/action-setup@v2
+      with:
+        version: 9
+
+    - name: Use Node.js 20.10
+      uses: actions/setup-node@v3
+      with:
+        node-version: 20.10
+        cache: 'pnpm'
+
+    - name: Frontend Lint JS
+      if: always()
+      run: pnpm install && pnpm run lint --fix
