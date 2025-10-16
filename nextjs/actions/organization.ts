@@ -19,7 +19,7 @@ export async function getOrganizationsAction(): Promise<ActionResult> {
       success: true,
       data: result.data,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -50,7 +50,7 @@ export async function createOrganizationAction(data: {
       success: true,
       data: result.data,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -74,7 +74,7 @@ export async function getOrganizationAction(_uuid: string): Promise<ActionResult
       success: true,
       data: result.data,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -105,7 +105,7 @@ export async function updateOrganizationAction(
       success: true,
       data: result.data,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -126,7 +126,7 @@ export async function deleteOrganizationAction(uuid: string): Promise<ActionResu
 
     revalidatePath("/organization");
     return { success: true };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -149,7 +149,7 @@ export async function getOrganizationStatisticsAction(uuid: string): Promise<Act
       success: true,
       data: result.data,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -172,7 +172,7 @@ export async function getOrganizationUsageAction(uuid: string): Promise<ActionRe
       success: true,
       data: result.data,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -196,7 +196,7 @@ export async function transferOrganizationOwnershipAction(
 
     revalidatePath("/organization");
     return { success: true };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -219,7 +219,7 @@ export async function getOrganizationMembersAction(): Promise<ActionResult> {
       success: true,
       data: result.data,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -240,7 +240,7 @@ export async function removeOrganizationMemberAction(userUuid: string): Promise<
 
     revalidatePath("/organizations");
     return { success: true };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -270,7 +270,7 @@ export async function changeOrganizationMemberRoleAction(
 
     revalidatePath("/organizations");
     return { success: true };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -293,7 +293,7 @@ export async function getOrganizationStatsAction(): Promise<ActionResult> {
       success: true,
       data: result.data,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",

@@ -25,7 +25,7 @@ export async function getDashboardDataAction(): Promise<DashboardActionResult> {
       success: true,
       data: result.data,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An error occurred while fetching dashboard data",

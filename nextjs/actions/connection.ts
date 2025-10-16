@@ -28,7 +28,7 @@ export async function initiateConnectionAction(redirectUrl: string): Promise<Con
       message: result.message,
       data: result.data
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred. Please try again."

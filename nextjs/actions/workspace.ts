@@ -19,7 +19,7 @@ export async function getWorkspacesAction(): Promise<ActionResult> {
       success: true,
       data: result.data,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -71,7 +71,7 @@ export async function getWorkspaceAction(): Promise<ActionResult> {
       success: true,
       data: result.data,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -102,7 +102,7 @@ export async function updateWorkspaceAction(
       success: true,
       data: result.data,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -123,7 +123,7 @@ export async function deleteWorkspaceAction(): Promise<ActionResult> {
 
     revalidatePath("/organization/workspaces");
     return { success: true };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -147,7 +147,7 @@ export async function getWorkspaceMembersAction(): Promise<ActionResult> {
       success: true,
       data: result.data,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -170,7 +170,7 @@ export async function removeWorkspaceMemberAction(
 
     revalidatePath("/workspace/members");
     return { success: true };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -194,7 +194,7 @@ export async function changeWorkspaceMemberRoleAction(
 
     revalidatePath("/workspace/members");
     return { success: true };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -219,7 +219,7 @@ export async function transferWorkspaceOwnershipAction(
     revalidatePath("/workspace");
     revalidatePath("/organization/workspaces");
     return { success: true };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -249,7 +249,7 @@ export async function duplicateWorkspaceAction(
       success: true,
       data: result.data,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -280,7 +280,7 @@ export async function updateWorkspaceByUuidAction(
       success: true,
       data: result.data,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -303,7 +303,7 @@ export async function getWorkspaceEmbedCodeAction(): Promise<ActionResult> {
       success: true,
       data: result.data,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",

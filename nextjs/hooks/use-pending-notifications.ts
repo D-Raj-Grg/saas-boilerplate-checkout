@@ -26,7 +26,7 @@ export function usePendingNotifications() {
           );
           setHasPendingInvitations(validInvitations.length > 0);
         }
-      } catch (error) {
+      } catch {
       } finally {
         setIsLoading(false);
       }

@@ -45,7 +45,7 @@ export async function loginAction(data: LoginData): Promise<AuthActionResult> {
     return {
       success: true
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -103,7 +103,7 @@ export async function signupAction(data: SignupData): Promise<AuthActionResult> 
     return {
       success: true
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -133,7 +133,7 @@ export async function forgotPasswordAction(data: ForgotPasswordData): Promise<Au
       success: true,
       data: result?.data
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -162,7 +162,7 @@ export async function verifyPasswordTokenAction(data: VerifyPasswordTokenData): 
       success: true,
       data: result?.data
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -181,7 +181,7 @@ export async function resetPasswordAction(data: ResetPasswordData): Promise<Auth
       };
     }
     return { success: true };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -204,7 +204,7 @@ export async function verifyEmailAction(token: string): Promise<AuthActionResult
       success: true,
       message: result.message || "Email verified successfully"
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -227,7 +227,7 @@ export async function resendVerificationEmailAction(): Promise<AuthActionResult>
       success: true,
       message: result.message || "Verification email sent"
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -250,7 +250,7 @@ export async function getEmailVerificationStatusAction(): Promise<AuthActionResu
       success: true,
       data: result.data
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -273,7 +273,7 @@ export async function joinWaitlistAction(data: WaitlistData): Promise<AuthAction
       success: true,
       data: result.data,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -312,7 +312,7 @@ export async function exchangeGoogleCodeAction(code: string): Promise<AuthAction
     return {
       success: true
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",

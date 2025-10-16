@@ -32,7 +32,7 @@ export async function getConnectionsAction(): Promise<ConnectionsListResult> {
       message: result.message,
       data: result.data
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred. Please try again."
@@ -62,7 +62,7 @@ export async function deleteConnectionAction(connectionId: string): Promise<Dele
       success: true,
       message: result.message
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred. Please try again."
@@ -95,7 +95,7 @@ export async function syncConnectionAction(connectionId: string): Promise<SyncCo
       message: result.message,
       data: result.data
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred. Please try again."

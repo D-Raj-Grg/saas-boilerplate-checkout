@@ -27,7 +27,7 @@ export async function submitFeedbackAction(data: FeedbackData): Promise<ActionRe
       success: true,
       data: { message: "Thank you for your feedback!" },
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred. Please try again.",

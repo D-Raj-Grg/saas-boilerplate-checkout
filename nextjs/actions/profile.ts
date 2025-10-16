@@ -24,7 +24,7 @@ export async function getUserProfile() {
       success: true,
       data: data.data,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -67,7 +67,7 @@ export async function updateUserProfile(profileData: UpdateProfileData) {
       message: data.message,
       password_changed: data.data.password_changed,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",

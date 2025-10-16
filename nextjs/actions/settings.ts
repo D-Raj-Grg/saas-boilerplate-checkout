@@ -25,7 +25,7 @@ export async function getWorkspaceSettings() {
       success: true,
       data: data.data,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -49,7 +49,7 @@ export async function updateWorkspaceSettings(settings: WorkspaceSettings) {
       success: true,
       data: data.data,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",

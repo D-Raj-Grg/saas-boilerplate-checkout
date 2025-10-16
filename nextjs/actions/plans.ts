@@ -53,7 +53,7 @@ export async function getCheckoutUrlAction(
       success: true,
       checkoutUrl: result.data.checkout_url,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -91,7 +91,7 @@ export async function getCustomerDashboardUrlAction(): Promise<CustomerDashboard
       success: true,
       dashboardUrl: result.data.customer_dashboard_url,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -163,7 +163,7 @@ export async function getPlansAction(): Promise<PlansActionResult> {
       features: result.data.features,
       limits: result.data.limits,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
