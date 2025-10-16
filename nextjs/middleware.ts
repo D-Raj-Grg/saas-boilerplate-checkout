@@ -5,7 +5,7 @@ import type { NextRequest } from "next/server";
 const AUTH_TOKEN_NAME = process.env.AUTH_TOKEN_NAME || 'secure_cookie_name';
 
 // Define protected routes - all routes that require authentication
-const protectedRoutes = ["/dashboard", "/organization", "/organizations", "/workspaces", "/workspace", "/invitations", "/settings", "/support", "/connect", "/connections"];
+const protectedRoutes = ["/dashboard", "/organization", "/organizations", "/workspaces", "/workspace", "/invitations", "/settings", "/support"];
 const authRoutes = ["/login", "/signup", "/pre-launch-register-b7f9d4e8c2a1", "/forgot-password", "/reset-password", "/verify-email", "/join-waitlist", "/pricing"];
 const publicRoutes = ["/pricing"];
 

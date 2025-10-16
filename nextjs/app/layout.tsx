@@ -50,13 +50,6 @@ export default function RootLayout({
           src="https://js.surecart.com/v1/affiliates"
           strategy="afterInteractive"
         />
-        <Script
-          id="convertbox-embed"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `!function(e,t){(e=t.createElement("script")).src="https://cdn.convertbox.com/convertbox/js/embed.js",e.id="app-convertbox-script",e.async=true,e.dataset.uuid="6d500fae-141a-4ca6-bf51-8f4e89bf91b0",document.getElementsByTagName("head")[0].appendChild(e)}(window,document);`,
-          }}
-        />
         {children}
         <Toaster richColors position="top-right" />
       </body>

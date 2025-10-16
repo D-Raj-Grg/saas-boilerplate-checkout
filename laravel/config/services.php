@@ -39,12 +39,6 @@ return [
         'zone_id' => env('CLOUDFLARE_ZONE_ID'),
     ],
 
-    'surecart' => [
-        'api_key' => env('SURECART_API_KEY'),
-        'signing_secret' => env('SURECART_SIGNING_SECRET'),
-        'price_mapping' => json_decode(env('SURECART_PRICE_MAPPING') ?? '{}', true),
-    ],
-
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),

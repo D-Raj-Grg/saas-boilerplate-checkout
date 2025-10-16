@@ -9,7 +9,7 @@ import * as z from "zod";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { loginAction, exchangeGoogleCodeAction } from "@/actions/auth";
 import { acceptInvitationByTokenAction } from "@/actions/invitation";
@@ -285,14 +285,14 @@ export function LoginForm() {
               </Form>
             </CardContent>
             {/* Hidden for pre-launch */}
-            {/* <CardFooter>
+            <CardFooter>
             <div className="text-center text-sm text-muted-foreground w-full">
               Don&apos;t have an account?{" "}
               <Link href="/signup" className="font-semibold text-foreground hover:text-muted-foreground transition-colors">
                 Sign up
               </Link>
             </div>
-          </CardFooter> */}
+          </CardFooter> 
           </Card>
         </div>
       </div>

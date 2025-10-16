@@ -4,7 +4,6 @@ namespace App\Traits;
 
 use App\Enums\OrganizationRole;
 use App\Enums\WorkspaceRole;
-use App\Models\Connection;
 use App\Models\Organization;
 use App\Models\Workspace;
 
@@ -137,80 +136,6 @@ trait HasPermissions
         }
 
         return in_array($userRole->value, $roles);
-    }
-
-    // === CONNECTION PERMISSIONS ===
-
-    /**
-     * Check if the user can view a specific connection.
-     */
-    public function canViewConnection(Connection $connection): bool
-    {
-        /** @var \App\Models\Workspace $workspace */
-        $workspace = $connection->workspace;
-
-        // Organization admin/owner can view any connection
-        /** @var \App\Models\Organization $organization */
-        $organization = $workspace->organization;
-        if ($this->isOrganizationAdmin($organization)) {
-            return true;
-        }
-
-        // Admin/Owner can view any connection in workspace
-        if ($this->canManageWorkspace($workspace)) {
-            return true;
-        }
-
-        // Member can only view their own connections
-        return $connection->user_id === $this->id;
-    }
-
-    /**
-     * Check if the user can update a specific connection.
-     */
-    public function canUpdateConnection(Connection $connection): bool
-    {
-        /** @var \App\Models\Workspace $workspace */
-        $workspace = $connection->workspace;
-
-        // Organization admin/owner can update any connection
-        /** @var \App\Models\Organization $organization */
-        $organization = $workspace->organization;
-        if ($this->isOrganizationAdmin($organization)) {
-            return true;
-        }
-
-        // Admin/Owner can update any connection in workspace
-        if ($this->canManageWorkspace($workspace)) {
-            return true;
-        }
-
-        // Member can only update their own connections
-        return $connection->user_id === $this->id;
-    }
-
-    /**
-     * Check if the user can delete a specific connection.
-     */
-    public function canDeleteConnection(Connection $connection): bool
-    {
-        /** @var \App\Models\Workspace $workspace */
-        $workspace = $connection->workspace;
-
-        // Organization admin/owner can delete any connection
-        /** @var \App\Models\Organization $organization */
-        $organization = $workspace->organization;
-        if ($this->isOrganizationAdmin($organization)) {
-            return true;
-        }
-
-        // Admin/Owner can delete any connection in workspace
-        if ($this->canManageWorkspace($workspace)) {
-            return true;
-        }
-
-        // Member can only delete their own connections
-        return $connection->user_id === $this->id;
     }
 
     // === ORGANIZATION PERMISSIONS ===

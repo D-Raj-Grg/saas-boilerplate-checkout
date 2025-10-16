@@ -9,7 +9,6 @@ import {
   Settings,
   // HelpCircle,
   Users,
-  Workflow,
   ArrowUpRightIcon,
   CreditCard,
   Info,
@@ -31,8 +30,7 @@ import {
 } from "@/components/ui/tooltip";
 
 const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Connections", href: "/connections", icon: Workflow }
+  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard }
 ];
 
 const baseBottomNavigation = [

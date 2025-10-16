@@ -2,12 +2,10 @@
 
 namespace App\Providers;
 
-use App\Models\Connection;
 use App\Models\Invitation;
 use App\Models\Organization;
 use App\Models\User;
 use App\Models\Workspace;
-use App\Policies\ConnectionPolicy;
 use App\Policies\InvitationPolicy;
 use App\Policies\OrganizationPolicy;
 use App\Policies\UserPolicy;
@@ -22,7 +20,6 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        Connection::class => ConnectionPolicy::class,
         Invitation::class => InvitationPolicy::class,
         Organization::class => OrganizationPolicy::class,
         User::class => UserPolicy::class,

@@ -1,21 +1,20 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { useUserStore } from "@/stores/user-store";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CreditCard } from "lucide-react";
 import { OrganizationStats } from "@/interfaces";
-import { getCustomerDashboardUrlAction } from "@/actions/plans";
-import { toast } from "sonner";
 
 interface PlansManagementProps {
   organizationStats: OrganizationStats | null;
 }
 
 export function PlansManagement({ organizationStats }: PlansManagementProps) {
+  const router = useRouter();
   const { selectedOrganization } = useUserStore();
-  const [isLoading, setIsLoading] = useState(false);
 
   const plan = useMemo(() => {
     return organizationStats?.plan || {
@@ -26,22 +25,9 @@ export function PlansManagement({ organizationStats }: PlansManagementProps) {
     };
   }, [organizationStats]);
 
-  const handleManageBilling = async () => {
-    setIsLoading(true);
-    try {
-      const result = await getCustomerDashboardUrlAction();
-
-      if (result.success && result.dashboardUrl) {
-        window.location.href = result.dashboardUrl;
-      } else {
-        toast.error(result.error || "Failed to open billing dashboard");
-      }
-    } catch {
-      setIsLoading(false);
-      toast.error("An unexpected error occurred");
-    } finally {
-
-    }
+  const handleManageBilling = () => {
+    // Redirect to pricing page to upgrade/downgrade plan
+    router.push('/pricing');
   };
 
   if (!selectedOrganization) {
@@ -64,9 +50,9 @@ export function PlansManagement({ organizationStats }: PlansManagementProps) {
             Manage your organization&apos;s subscription and billing information.
           </p>
         </div>
-        <Button onClick={handleManageBilling} disabled={isLoading}>
+        <Button onClick={handleManageBilling}>
           <CreditCard className="h-4 w-4 mr-2" />
-          {isLoading ? "Loading..." : "Manage Billing"}
+          Manage Billing
         </Button>
       </div>
 

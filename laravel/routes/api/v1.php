@@ -2,12 +2,12 @@
 
 use App\Http\Controllers\Api\V1\GoogleAuthController;
 use App\Http\Controllers\Api\V1\AuthController;
-use App\Http\Controllers\Api\V1\ConnectionController;
 use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\EmailVerificationController;
 use App\Http\Controllers\Api\V1\InvitationController;
 use App\Http\Controllers\Api\V1\OrganizationController;
 use App\Http\Controllers\Api\V1\PasswordResetController;
+use App\Http\Controllers\Api\V1\PaymentController;
 use App\Http\Controllers\Api\V1\PlanController;
 use App\Http\Controllers\Api\V1\UserSessionController;
 use App\Http\Controllers\Api\V1\WaitlistController;
@@ -68,27 +68,25 @@ Route::middleware(['App\Http\Middleware\RateLimitHeaders'])->group(function (): 
         Route::get('/invitations/{token}/check-status', [InvitationController::class, 'checkStatus']);
     });
 
-    // WordPress connection exchange
-    Route::middleware('throttle:api')->group(function (): void {
-        Route::post('/connections/exchange', [ConnectionController::class, 'exchange']);
-    });
-
-    // Public plans endpoint (optional auth for personalized checkout URLs)
+    // Public plans endpoint
     Route::middleware('throttle:api')->group(function (): void {
         Route::get('/plans', [PlanController::class, 'index']);
-        Route::post('/plans/checkout-url', [PlanController::class, 'getCheckoutUrl']);
     });
 
-    // SureCart webhook endpoint (public, no auth, no rate limit)
-    Route::post('/plans/webhook', [PlanController::class, 'webhook']);
+    // Public payment endpoints (support guest checkout)
+    Route::middleware('throttle:api')->group(function (): void {
+        Route::post('/payments/initiate', [PaymentController::class, 'initiate']);
+        Route::get('/payments/{payment:uuid}/verify', [PaymentController::class, 'verify']);
+    });
 
     // Protected routes
     Route::middleware(['auth:sanctum'])->group(function (): void {
 
-        // Plans
+        // Protected payment routes
         Route::middleware('throttle:api')->group(function (): void {
-
-            Route::post('/plans/customer-dashboard-url', [PlanController::class, 'getCustomerDashboardUrl']);
+            Route::get('/payments/{payment:uuid}/status', [PaymentController::class, 'status']);
+            Route::get('/payments/history', [PaymentController::class, 'history']);
+            Route::post('/payments/{payment:uuid}/refund', [PaymentController::class, 'refund']); // Admin only
         });
 
         // General API rate limit for basic operations
@@ -168,15 +166,6 @@ Route::middleware(['App\Http\Middleware\RateLimitHeaders'])->group(function (): 
         Route::middleware('throttle:workspace-settings')->group(function (): void {
             Route::get('/workspace/settings', [WorkspaceSettingController::class, 'show']);
             Route::put('/workspace/settings', [WorkspaceSettingController::class, 'update']);
-        });
-
-        // WordPress Connection endpoints
-        Route::middleware('throttle:api')->group(function (): void {
-            Route::get('/connections', [ConnectionController::class, 'index']);
-            Route::post('/connections/initiate', [ConnectionController::class, 'initiate']);
-            Route::patch('/connections/status', [ConnectionController::class, 'updateStatus']);
-            Route::post('/connections/sync', [ConnectionController::class, 'sync']);
-            Route::delete('/connections/{connection:uuid}', [ConnectionController::class, 'revoke']);
         });
 
         // Wait list management (admin)

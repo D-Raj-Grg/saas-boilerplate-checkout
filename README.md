@@ -1,10 +1,10 @@
 # DJ SaaS Boilerplate
 
-This is a comprehensive SaaS boilerplate for the DJ SaaS product, containing a complete multi-stack application with authentication, organization management, workspaces, user profiles, and integrated billing.
+This is a comprehensive SaaS boilerplate for the DJ SaaS product, containing a complete multi-stack application with authentication, organization management, workspaces, user profiles, and integrated Nepal payment gateways.
 
 ## Project Structure
 
-This boilerplate consists of three main components:
+This boilerplate consists of two main components:
 
 ### 1. **Laravel Backend** (`/laravel`)
 The backend API built with Laravel, featuring:
@@ -13,12 +13,12 @@ The backend API built with Laravel, featuring:
 - Workspace management
 - User profile management
 - Plans and pricing integration
-- SureCart integration for billing
+- Nepal payment gateway integration (eSewa, Khalti, Fonepay)
 - Email and queue configuration
 
 **Configuration:**
 - Copy `.env.example` to `.env`
-- Configure SureCart credentials
+- Configure payment gateway credentials (eSewa, Khalti, Fonepay)
 - Set up email provider settings
 - Configure queue driver
 - See `/laravel/README.md` for detailed setup instructions
@@ -35,18 +35,6 @@ Modern UI built with Next.js and Shadcn components:
 - Ensure `NEXT_PUBLIC_API_URL` points to your Laravel backend URL
 - See `/nextjs/README.md` for detailed setup instructions
 
-### 3. **WordPress Billing Store** (`/store`)
-WordPress installation with SureCart for payment processing:
-- SureCart plugin installed
-- Processes all billing operations
-- Includes connector plugin that bridges WordPress with the Laravel backend API
-- Stores authentication tokens for API communication
-
-**Configuration:**
-- Copy `.env.example` to `.env`
-- Configure WordPress URLs
-- Set correct API endpoints for Laravel backend
-- See `/store/README.md` for detailed setup instructions
 
 ## Local Development Setup
 
@@ -59,22 +47,17 @@ WordPress installation with SureCart for payment processing:
 
 ### Installation Steps
 
-1. **Create Local By Flywheel Project**
-   - Create a new site in Local By Flywheel
-   - Navigate to the project's `public` directory
-   - Paste/copy the contents of the `/store` repository into the `public` folder
-
-2. **Configure Laravel Backend**
+1. **Configure Laravel Backend**
    ```bash
    cd laravel
    composer install
    cp .env.example .env
    php artisan key:generate
-   # Configure .env with database, SureCart, email, and queue settings
+   # Configure .env with database, payment gateways, email, and queue settings
    php artisan migrate
    ```
 
-3. **Configure Next.js Frontend**
+2. **Configure Next.js Frontend**
    ```bash
    cd nextjs
    npm install
@@ -83,12 +66,6 @@ WordPress installation with SureCart for payment processing:
    npm run dev
    ```
 
-4. **Configure WordPress Store**
-   - Access your Local By Flywheel site
-   - Complete WordPress installation
-   - Install and activate SureCart plugin
-   - Install and activate the connector plugin
-   - Configure `.env` with proper URLs and API endpoints
 
 ## Environment Configuration
 
@@ -96,7 +73,6 @@ Each project component has its own environment configuration:
 
 - **Laravel**: `/laravel/.env` (use `.env.example` as template)
 - **Next.js**: `/nextjs/.env.local` (use `.env.example` as template)
-- **WordPress Store**: `/store/.env` (use `.env.example` as template)
 
 See `build-deploy.yml` for deployment-related environment configurations.
 
@@ -106,8 +82,8 @@ See `build-deploy.yml` for deployment-related environment configurations.
 - ✅ Multi-tenant organization support
 - ✅ Workspace management
 - ✅ User profile management
-- ✅ Plans and pricing with SureCart
-- ✅ WordPress connector plugin for seamless API integration
+- ✅ Plans and pricing with Nepal payment gateways
+- ✅ In-app checkout and payment processing
 - ✅ Modern UI with Shadcn components
 - ✅ Queue and email support
 
@@ -116,7 +92,6 @@ See `build-deploy.yml` for deployment-related environment configurations.
 For component-specific documentation, refer to:
 - `/laravel/README.md` - Laravel backend documentation
 - `/nextjs/README.md` - Next.js frontend documentation
-- `/store/README.md` - WordPress store documentation
 
 ## Deployment
 

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { PricingHeader } from "./pricing-header";
 import { PricingSlab } from "./pricing-slab";
 import { CallToActionSection } from "./call-to-action-section";
@@ -12,21 +11,23 @@ import { MoneyBackGuarantee } from "./money-back-guarantee";
 import { TestimonialsMarquee } from "./testimonials-marquee";
 import { cn } from "@/lib/utils";
 import { FlickeringGrid } from "@/components/ui/flickering-grid";
-import { getCheckoutUrlAction, PlansActionResult } from "@/actions/plans";
+import { PlansActionResult } from "@/actions/plans";
 import { toast } from "sonner";
 import { useUserStore } from "@/stores/user-store";
 import { loadUserData } from "@/lib/auth-client";
 import { Highlighter } from "@/components/ui/highlighter";
+import { useRouter } from "next/navigation";
 
 interface PricingPageClientProps {
   plansData: PlansActionResult;
 }
 
 export function PricingPageClient({ plansData }: PricingPageClientProps) {
-  const searchParams = useSearchParams();
+  const router = useRouter();
   const featuresFoldRef = useRef<HTMLDivElement>(null);
 
   // Get user and organization from Zustand store
+  const user = useUserStore((state) => state.user);
   const selectedOrganization = useUserStore(
     (state) => state.selectedOrganization
   );
@@ -72,42 +73,41 @@ export function PricingPageClient({ plansData }: PricingPageClientProps) {
     slug: string;
     isActivePlan: boolean;
   }) => {
-    if (isActivePlan) return;
+    console.log('[Checkout] Starting checkout process', { slug, isActivePlan, user: !!user });
+
+    if (isActivePlan) {
+      console.log('[Checkout] Plan is already active, aborting');
+      return;
+    }
 
     setLoadingCheckoutFor(slug);
 
     try {
-      // Get optional params from URL search params
-      const source = searchParams?.get("source") || "pricing";
-      const coupon = searchParams?.get("coupon") || "";
-      const aff = searchParams?.get("aff") || "";
-
-      // Get the plan directly by slug (slug already includes period like "business-yearly")
+      // Get the plan
       const plan = plansData?.plans?.[slug];
+      console.log('[Checkout] Plan data', { plan, allPlans: Object.keys(plansData?.plans || {}) });
 
-      const checkout_url =
-        plan?.upgrade_downgrade_url ?? plan?.checkout_url ?? undefined;
-
-      // Call server action to get checkout URL
-      const result = await getCheckoutUrlAction({
-        plan_slug: slug,
-        source,
-        coupon,
-        aff,
-        checkout_url,
-      });
-
-      if (!result.success || !result.checkoutUrl) {
-        toast.error(
-          result.error || "Unable to create checkout link. Please try again."
-        );
+      if (!plan) {
+        console.error('[Checkout] Plan not found:', slug);
+        toast.error("Plan not found");
         setLoadingCheckoutFor(null);
         return;
       }
 
-      // Redirect to checkout URL - keep buttons disabled until redirect completes
-      window.location.href = result.checkoutUrl;
-    } catch {
+      // Check if plan is free
+      if (plan.is_free) {
+        console.log('[Checkout] Plan is free, no checkout required');
+        toast.info("This is a free plan. No checkout required.");
+        setLoadingCheckoutFor(null);
+        return;
+      }
+
+      // Redirect to checkout page
+      const checkoutUrl = `/checkout/${slug}`;
+      console.log('[Checkout] Redirecting to:', checkoutUrl);
+      router.push(checkoutUrl);
+    } catch (error) {
+      console.error('[Checkout] Error during checkout:', error);
       toast.error("An unexpected error occurred. Please try again.");
       setLoadingCheckoutFor(null);
     }
