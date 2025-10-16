@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Plugin Name:         BSF SaaS Billing
- * Description:         BSF SaaS Billing Portal
- * Author:              BSF
+ * Plugin Name:         DJ SaaS Billing
+ * Description:         DJ SaaS Billing Portal
+ * Author:              DJ
  * Author URI:          https://www.brainstormforce.com/
  * Plugin URI:          https://www.brainstormforce.com/
  * Text Domain:         automate-plug

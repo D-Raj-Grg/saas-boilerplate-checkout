@@ -10,7 +10,7 @@ use BsfSaasBilling\Controllers\UserSyncController;
  *
  * @category App
  * @package  BsfSaasBilling
- * @author   BSF <username@example.com>
+ * @author   DJ <username@example.com>
  * @license  https://www.gnu.org/licenses/gpl-3.0.html GPLv3
  * @link     https://www.brainstormforce.com/
  * @since    1.0.0

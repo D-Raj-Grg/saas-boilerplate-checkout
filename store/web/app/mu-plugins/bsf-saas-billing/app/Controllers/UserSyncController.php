@@ -13,7 +13,7 @@ use WP_Error;
  *
  * @category UserSyncController
  * @package  BsfSaasBilling
- * @author   BSF <username@example.com>
+ * @author   DJ <username@example.com>
  * @license  https://www.gnu.org/licenses/gpl-3.0.html GPLv3
  * @link     https://www.brainstormforce.com/
  * @since    1.0.0
@@ -326,7 +326,7 @@ class UserSyncController
 		$ip = $this->get_client_ip($request);
 
 		error_log(sprintf(
-			'[BSF SaaS User Sync Security] %s | IP: %s | Time: %s',
+			'[DJ SaaS User Sync Security] %s | IP: %s | Time: %s',
 			$message,
 			$ip,
 			current_time('mysql')
@@ -344,7 +344,7 @@ class UserSyncController
 	private function log_sync_event($action, $email, $details = '')
 	{
 		error_log(sprintf(
-			'[BSF SaaS User Sync] %s | Email: %s | Details: %s | Time: %s',
+			'[DJ SaaS User Sync] %s | Email: %s | Details: %s | Time: %s',
 			$action,
 			$email,
 			$details,

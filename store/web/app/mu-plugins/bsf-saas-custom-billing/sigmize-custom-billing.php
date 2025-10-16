@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Plugin Name: BSF SaaS Store Customizations
+ * Plugin Name: DJ SaaS Store Customizations
  * Plugin URI: https://brainstormforce.com/
  * Description: Add customizations to the SureCart store.
  * Version: 1.1.0

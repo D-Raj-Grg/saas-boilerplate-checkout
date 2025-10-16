@@ -1,6 +1,6 @@
-# BSF SaaS Boilerplate
+# DJ SaaS Boilerplate
 
-This is a comprehensive SaaS boilerplate for the BSF SaaS product, containing a complete multi-stack application with authentication, organization management, workspaces, user profiles, and integrated billing.
+This is a comprehensive SaaS boilerplate for the DJ SaaS product, containing a complete multi-stack application with authentication, organization management, workspaces, user profiles, and integrated billing.
 
 ## Project Structure
 
