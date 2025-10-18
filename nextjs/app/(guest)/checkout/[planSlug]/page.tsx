@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getPlansAction } from "@/actions/plans";
+import { getMeAction } from "@/actions/user";
 import { CheckoutPageClient } from "./_components/checkout-page-client";
 
 export const metadata: Metadata = {
@@ -33,5 +34,8 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
     redirect("/pricing");
   }
 
-  return <CheckoutPageClient plan={plan} />;
+  // Fetch user data server-side (for page refresh support)
+  const userData = await getMeAction();
+
+  return <CheckoutPageClient plan={plan} initialUserData={userData.success ? userData.data : null} />;
 }

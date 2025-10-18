@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Plan } from "@/actions/plans";
 import { initiatePaymentAction, PaymentGateway } from "@/actions/payment";
 import { Button } from "@/components/ui/button";
@@ -10,15 +10,25 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-import { useUser } from "@/stores/user-store";
+import { useUser, useUserStore } from "@/stores/user-store";
 import { formatCurrency, getAvailableGatewaysForCurrency } from "@/lib/currency";
 
 interface CheckoutPageClientProps {
   plan: Plan;
+  initialUserData?: any;
 }
 
-export function CheckoutPageClient({ plan }: CheckoutPageClientProps) {
+export function CheckoutPageClient({ plan, initialUserData }: CheckoutPageClientProps) {
   const user = useUser();
+  const hasHydrated = useRef(false);
+
+  // Hydrate user store from server-provided data on mount (for page refresh)
+  useEffect(() => {
+    if (initialUserData && !user && !hasHydrated.current) {
+      hasHydrated.current = true;
+      useUserStore.getState().setUserData(initialUserData);
+    }
+  }, [initialUserData, user]);
   const availableGateways = getAvailableGatewaysForCurrency(plan.currency);
   const [selectedGateway, setSelectedGateway] = useState<PaymentGateway>(
     availableGateways.includes("esewa") ? "esewa" : (availableGateways[0] as PaymentGateway)
