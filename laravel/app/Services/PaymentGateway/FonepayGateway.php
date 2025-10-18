@@ -40,7 +40,7 @@ class FonepayGateway implements PaymentGatewayInterface
                 'order_id' => $orderId,
                 'amount' => $amount,
                 'signature' => $signature,
-                'return_url' => config('frontend.url').'/payment/success',
+                'return_url' => config('payment-gateways.esewa.success_url').'?payment_uuid='.$orderId,
             ]);
 
             return [

@@ -22,10 +22,15 @@ class VerifyPaymentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // eSewa parameters
+            // eSewa v1 parameters (legacy)
             'oid' => ['sometimes', 'string'], // eSewa order ID
             'refId' => ['sometimes', 'string'], // eSewa reference ID
             'amt' => ['sometimes', 'numeric'], // eSewa amount
+
+            // eSewa v2 parameters
+            'data' => ['sometimes', 'string'], // eSewa v2 base64 encoded data
+            'transaction_uuid' => ['sometimes', 'string'], // eSewa v2 transaction UUID
+            'total_amount' => ['sometimes', 'numeric'], // eSewa v2 total amount
 
             // Khalti parameters
             'pidx' => ['sometimes', 'string'], // Khalti payment index
@@ -34,6 +39,7 @@ class VerifyPaymentRequest extends FormRequest
 
             // Generic parameters
             'q' => ['sometimes', 'string'], // Query parameter (su/fu for success/failure)
+            'payment_uuid' => ['sometimes', 'string'], // Our payment UUID
         ];
     }
 }

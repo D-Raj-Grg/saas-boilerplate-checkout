@@ -1,9 +1,10 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { remoteGet, remotePost } from "@/lib/request";
 
 // Payment Gateway Types
-export type PaymentGateway = "esewa" | "khalti" | "fonepay";
+export type PaymentGateway = "esewa" | "khalti" | "fonepay" | "stripe" | "mock";
 
 // Payment Initiation
 export interface InitiatePaymentData {
@@ -19,6 +20,7 @@ export interface InitiatePaymentResponse {
     payment_uuid: string;
     payment_url: string;
     gateway: PaymentGateway;
+    form_params?: Record<string, any>; // For eSewa form parameters
   };
   message?: string;
   errors?: {
@@ -31,6 +33,7 @@ export interface InitiatePaymentResult {
   success: boolean;
   paymentUuid?: string;
   paymentUrl?: string;
+  formParams?: Record<string, any>; // For eSewa form parameters
   gateway?: PaymentGateway;
   error?: string;
 }
@@ -39,6 +42,7 @@ export async function initiatePaymentAction(
   data: InitiatePaymentData
 ): Promise<InitiatePaymentResult> {
   try {
+    // All gateways now return JSON uniformly
     const result = await remotePost<InitiatePaymentResponse>(
       "/payments/initiate",
       data
@@ -61,6 +65,7 @@ export async function initiatePaymentAction(
       success: true,
       paymentUuid: result.data.payment_uuid,
       paymentUrl: result.data.payment_url,
+      formParams: result.data.form_params, // Will be populated for eSewa
       gateway: result.data.gateway,
     };
   } catch {

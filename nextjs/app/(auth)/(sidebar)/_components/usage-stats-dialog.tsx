@@ -50,7 +50,7 @@ function UsageStat({ label, current, limit, percentage }: UsageStatProps) {
 export function UsageStatsDialog({ open, onOpenChange }: UsageStatsDialogProps) {
   const planLimits = usePlanLimits();
 
-  if (!planLimits) {
+  if (!planLimits || !planLimits.plan) {
     return null;
   }
 
@@ -89,7 +89,7 @@ export function UsageStatsDialog({ open, onOpenChange }: UsageStatsDialogProps) 
             <div className="text-center py-8 text-muted-foreground">
               <p className="text-sm">No usage data available.</p>
               <p className="text-xs mt-1">
-                {planLimits.plan.status !== "active"
+                {planLimits.plan?.status !== "active"
                   ? "Your plan is inactive. Please upgrade to continue."
                   : "Upgrade to access usage statistics."}
               </p>

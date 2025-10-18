@@ -36,29 +36,44 @@ class EsewaGateway implements PaymentGatewayInterface
     public function initiatePayment(array $data): array
     {
         try {
-            // eSewa uses form-based redirect, not API
-            // We'll return the payment URL with parameters
+            // eSewa v2 API uses form-based POST redirect with HMAC signature
             $amount = $data['amount'];
             $orderId = $data['order_id']; // This will be payment UUID
             $productName = $data['product_name'] ?? 'SaaS Subscription';
 
-            // Build eSewa payment URL with parameters
-            $paymentUrl = $this->apiUrl.'?'.http_build_query([
-                'tAmt' => $amount, // Total amount
-                'amt' => $amount, // Product amount
-                'txAmt' => 0, // Tax amount
-                'psc' => 0, // Service charge
-                'pdc' => 0, // Delivery charge
-                'scd' => $this->merchantId, // Merchant ID
-                'pid' => $orderId, // Product ID (our payment UUID)
-                'su' => $this->successUrl.'?q=su&payment_uuid='.$orderId, // Success URL
-                'fu' => $this->failureUrl.'?q=fu&payment_uuid='.$orderId, // Failure URL
-            ]);
+            // eSewa v2 parameters
+            $taxAmount = 0;
+            $serviceCharge = 0;
+            $deliveryCharge = 0;
+            $totalAmount = $amount + $taxAmount + $serviceCharge + $deliveryCharge;
+
+            // Generate HMAC-SHA256 signature
+            // Format: "total_amount={amount},transaction_uuid={uuid},product_code={code}"
+            $message = "total_amount={$totalAmount},transaction_uuid={$orderId},product_code={$this->merchantId}";
+            $signature = base64_encode(hash_hmac('sha256', $message, $this->secretKey, true));
+
+            // Return form parameters as JSON for frontend to build and submit
+            // This provides better UX control on the frontend
+            // Note: eSewa returns transaction_uuid in the 'data' parameter, so we don't append it to URLs
+            $formParams = [
+                'amount' => (float) $amount,
+                'tax_amount' => (float) $taxAmount,
+                'total_amount' => (float) $totalAmount,
+                'transaction_uuid' => $orderId,
+                'product_code' => $this->merchantId,
+                'product_service_charge' => (float) $serviceCharge,
+                'product_delivery_charge' => (float) $deliveryCharge,
+                'success_url' => $this->successUrl,
+                'failure_url' => $this->failureUrl,
+                'signed_field_names' => 'total_amount,transaction_uuid,product_code',
+                'signature' => $signature,
+            ];
 
             return [
                 'success' => true,
-                'payment_url' => $paymentUrl,
-                'transaction_id' => $orderId, // eSewa transaction ID comes later
+                'payment_url' => $this->apiUrl, // eSewa form action URL
+                'form_params' => $formParams, // Form parameters for frontend
+                'transaction_id' => $orderId, // eSewa ref_id comes after payment
             ];
         } catch (Exception $e) {
             Log::error('eSewa payment initiation failed', [
@@ -73,52 +88,80 @@ class EsewaGateway implements PaymentGatewayInterface
         }
     }
 
+
     /**
-     * Verify payment with eSewa
+     * Verify payment with eSewa v2 API
      *
-     * @param  array{refId?: string, amt?: string, pid?: string}  $additionalData
+     * @param  array{total_amount?: string, transaction_uuid?: string, data?: string, refId?: string}  $additionalData
      */
     public function verifyPayment(string $transactionId, array $additionalData = []): array
     {
         try {
-            // eSewa verification requires: oid (order ID), refId (reference ID), amt (amount)
-            $refId = $additionalData['refId'] ?? $additionalData['oid'] ?? null;
-            $amount = $additionalData['amt'] ?? null;
-            $productId = $additionalData['pid'] ?? $transactionId;
+            // eSewa v2 verification requires: product_code, total_amount, transaction_uuid
+            // The transaction_uuid should be our payment UUID
+            $transactionUuid = $additionalData['transaction_uuid'] ?? $transactionId;
+            $totalAmount = $additionalData['total_amount'] ?? null;
 
-            if (! $refId || ! $amount) {
-                return [
-                    'success' => false,
-                    'error' => 'Missing required verification parameters (refId or amt)',
-                ];
-            }
+            // eSewa v2 may also return Base64-encoded 'data' parameter
+            // Decode it if present to extract transaction details
+            if (isset($additionalData['data'])) {
+                $decodedData = json_decode(base64_decode($additionalData['data']), true);
+                if ($decodedData) {
+                    $transactionUuid = $decodedData['transaction_uuid'] ?? $transactionUuid;
+                    $totalAmount = $decodedData['total_amount'] ?? $totalAmount;
 
-            // Make verification request to eSewa
-            $response = Http::asForm()->get($this->verifyUrl, [
-                'amt' => $amount,
-                'scd' => $this->merchantId,
-                'rid' => $refId,
-                'pid' => $productId,
-            ]);
-
-            if ($response->successful()) {
-                // eSewa returns XML response, check for success
-                $responseBody = $response->body();
-
-                // Simple XML parsing for success response
-                if (str_contains($responseBody, '<response_code>Success</response_code>')) {
-                    return [
-                        'success' => true,
-                        'status' => 'completed',
-                        'transaction_id' => $refId,
-                        'amount' => (float) $amount,
-                    ];
+                    Log::info('eSewa decoded data', ['decoded' => $decodedData]);
                 }
             }
 
+            if (! $totalAmount) {
+                return [
+                    'success' => false,
+                    'error' => 'Missing required verification parameter: total_amount',
+                ];
+            }
+
+            // Make verification request to eSewa v2 API
+            $response = Http::get($this->verifyUrl, [
+                'product_code' => $this->merchantId,
+                'total_amount' => $totalAmount,
+                'transaction_uuid' => $transactionUuid,
+            ]);
+
+            if ($response->successful()) {
+                $responseData = $response->json();
+
+                Log::info('eSewa verification response', [
+                    'response' => $responseData,
+                    'transaction_uuid' => $transactionUuid,
+                ]);
+
+                // Check if payment status is COMPLETE
+                if (isset($responseData['status']) && $responseData['status'] === 'COMPLETE') {
+                    return [
+                        'success' => true,
+                        'status' => 'completed',
+                        'transaction_id' => $responseData['ref_id'] ?? $transactionUuid,
+                        'amount' => (float) $totalAmount,
+                    ];
+                }
+
+                // Payment is pending or failed
+                Log::warning('eSewa payment not completed', [
+                    'transaction_uuid' => $transactionUuid,
+                    'status' => $responseData['status'] ?? 'unknown',
+                ]);
+
+                return [
+                    'success' => false,
+                    'error' => 'Payment status: '.($responseData['status'] ?? 'unknown'),
+                ];
+            }
+
             Log::warning('eSewa payment verification failed', [
-                'transaction_id' => $transactionId,
-                'response' => $response->body(),
+                'transaction_uuid' => $transactionUuid,
+                'status_code' => $response->status(),
+                'response_body' => $response->body(),
             ]);
 
             return [
@@ -130,6 +173,7 @@ class EsewaGateway implements PaymentGatewayInterface
             Log::error('eSewa payment verification error', [
                 'error' => $e->getMessage(),
                 'transaction_id' => $transactionId,
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return [

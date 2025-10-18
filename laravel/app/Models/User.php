@@ -59,6 +59,9 @@ class User extends Authenticatable
         'current_workspace_id',
         'metadata',
         'email_verified_at',
+        'locale',
+        'currency_preference',
+        'timezone',
     ];
 
     /**

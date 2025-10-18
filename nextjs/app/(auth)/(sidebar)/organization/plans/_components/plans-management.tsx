@@ -5,8 +5,10 @@ import { useRouter } from "next/navigation";
 import { useUserStore } from "@/stores/user-store";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CreditCard } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { CreditCard, Crown } from "lucide-react";
 import { OrganizationStats } from "@/interfaces";
+import { formatCurrency } from "@/lib/currency";
 
 interface PlansManagementProps {
   organizationStats: OrganizationStats | null;
@@ -16,14 +18,28 @@ export function PlansManagement({ organizationStats }: PlansManagementProps) {
   const router = useRouter();
   const { selectedOrganization } = useUserStore();
 
-  const plan = useMemo(() => {
-    return organizationStats?.plan || {
+  // Get all active plans, or show free plan if none
+  const activePlans = useMemo(() => {
+    if (organizationStats?.all_plans && organizationStats.all_plans.length > 0) {
+      return organizationStats.all_plans;
+    }
+    // Return free plan as default
+    return [{
+      uuid: 'free',
       name: 'Free',
-      type: 'Free',
-      validity: 'Lifetime',
-      endDate: new Date().toLocaleDateString(),
-    };
+      slug: 'free',
+      features: { priority_support: false },
+      limits: {},
+      price: '0',
+      formatted_price: 'Free',
+      purchased_at: undefined,
+      started_at: undefined,
+      status: 'active',
+    }];
   }, [organizationStats]);
+
+  // Get current (highest priority) plan
+  const currentPlan = organizationStats?.plan;
 
   const handleManageBilling = () => {
     // Redirect to pricing page to upgrade/downgrade plan
@@ -58,34 +74,97 @@ export function PlansManagement({ organizationStats }: PlansManagementProps) {
 
       {/* Plans & Subscriptions Section */}
       <div className="space-y-6">
-
         <Card className="py-0">
           <CardContent className="p-0">
-            <div className="border-b px-6 py-4">
-              <div className="grid grid-cols-4 gap-4 text-sm font-medium text-muted-foreground">
+            {/* Table Header */}
+            <div className="border-b px-6 py-4 bg-muted/50">
+              <div className="grid grid-cols-6 gap-4 text-sm font-medium text-muted-foreground">
                 <div>Plan Name</div>
-                <div>Type</div>
-                <div>Validity</div>
-                <div>Start Date</div>
+                <div>Price</div>
+                <div>Billing Cycle</div>
+                <div>Purchased Date</div>
+                <div>Status</div>
+                <div>Currency</div>
               </div>
             </div>
 
-            <div className="px-6 py-4">
-              <div className="grid grid-cols-4 gap-4 items-center">
-                <div className="flex items-center gap-3">
-                  <div className="shrink-0 size-8 rounded-full bg-gray-100 flex items-center justify-center text-sm font-medium">
-                    {plan.name.charAt(0)}
+            {/* Table Rows - All Active Plans */}
+            {activePlans.map((plan, index) => {
+              const isCurrentPlan = currentPlan?.uuid === plan.uuid;
+
+              return (
+                <div
+                  key={plan.uuid}
+                  className={`px-6 py-4 ${index !== activePlans.length - 1 ? 'border-b' : ''}`}
+                >
+                  <div className="grid grid-cols-6 gap-4 items-center">
+                    {/* Plan Name with Icon */}
+                    <div className="flex items-center gap-3">
+                      
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-foreground">{plan.name}</span>
+                        {isCurrentPlan && (
+                          <Badge variant="default" className="bg-teal-600 hover:bg-teal-700 text-white flex items-center gap-1">
+                            <Crown className="h-3 w-3" />
+                            Active
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Price */}
+                    <div className="text-foreground font-medium">
+                      {plan.formatted_price || formatCurrency(parseFloat(plan.price), organizationStats?.organization.currency || 'NPR')}
+                    </div>
+
+                    {/* Billing Cycle */}
+                    <div className="text-foreground capitalize">
+                      {plan.slug.includes('yearly') ? 'Yearly' : plan.slug.includes('monthly') ? 'Monthly' : 'Lifetime'}
+                    </div>
+
+                    {/* Purchased Date */}
+                    <div className="text-foreground text-sm">
+                      {plan.purchased_at
+                        ? new Date(plan.purchased_at).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                          })
+                        : 'N/A'}
+                    </div>
+
+                    {/* Status */}
+                    <div>
+                      <Badge variant="outline" className="border-green-200 bg-green-50 text-green-700">
+                        Active
+                      </Badge>
+                    </div>
+
+                    {/* Currency */}
+                    <div className="text-foreground font-mono text-sm">
+                      {organizationStats?.organization.currency || 'NPR'}
+                    </div>
                   </div>
-                  <span className="font-medium text-foreground">{plan.name}</span>
                 </div>
-                <div className="text-foreground">Subscription</div>
-                <div className="text-foreground">Annualy</div>
-                <div className="text-foreground">{new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toLocaleDateString()}
-                </div>
-              </div>
-            </div>
+              );
+            })}
           </CardContent>
         </Card>
+
+        {/* Info Message */}
+        {activePlans.length > 1 && (
+          <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <Crown className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm text-blue-900 font-medium">
+                Multiple Active Plans
+              </p>
+              <p className="text-sm text-blue-700 mt-1">
+                Your organization has {activePlans.length} active plans. The plan marked as &quot;Active&quot; with the crown icon is your current highest-priority plan, which determines your feature access and limits.
+              </p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

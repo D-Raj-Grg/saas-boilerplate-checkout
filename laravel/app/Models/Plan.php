@@ -17,6 +17,9 @@ class Plan extends Model
         'slug',
         'description',
         'price',
+        'currency',
+        'prices',
+        'market',
         'priority',
         'max_price',
         'billing_cycle',
@@ -29,6 +32,7 @@ class Plan extends Model
         'priority' => 'integer',
         'max_price' => 'decimal:2',
         'is_active' => 'boolean',
+        'prices' => 'array',
     ];
 
     protected $hidden = [
@@ -181,6 +185,55 @@ class Plan extends Model
             return 'Free';
         }
 
-        return '$'.number_format($this->price, 2);
+        $currencyService = app(\App\Services\CurrencyService::class);
+
+        return $currencyService->format($this->price, $this->currency);
+    }
+
+    /**
+     * Get price in a specific currency
+     */
+    public function getPriceInCurrency(string $currency): float
+    {
+        // If plan has multiple currency prices defined, use that
+        if ($this->prices && isset($this->prices[$currency])) {
+            return (float) $this->prices[$currency];
+        }
+
+        // Otherwise, convert from base price
+        $currencyService = app(\App\Services\CurrencyService::class);
+
+        return $currencyService->convert($this->price, $this->currency, $currency);
+    }
+
+    /**
+     * Get formatted price in a specific currency
+     */
+    public function getFormattedPriceInCurrency(string $currency): string
+    {
+        if ($this->isFree()) {
+            return 'Free';
+        }
+
+        $price = $this->getPriceInCurrency($currency);
+        $currencyService = app(\App\Services\CurrencyService::class);
+
+        return $currencyService->format($price, $currency);
+    }
+
+    /**
+     * Scope to filter plans by market
+     */
+    public function scopeMarket($query, string $market)
+    {
+        return $query->where('market', $market);
+    }
+
+    /**
+     * Scope to filter plans by currency
+     */
+    public function scopeCurrency($query, string $currency)
+    {
+        return $query->where('currency', $currency);
     }
 }

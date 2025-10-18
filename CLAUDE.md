@@ -131,6 +131,34 @@ npm run build        # Build plugin assets
 ./build.sh           # Create distribution package
 ```
 
+### Multi-Currency & Market Support
+Plans can target different markets with different currencies:
+```php
+// Currency utilities
+$currencyService = app(CurrencyService::class);
+
+// Format price with currency
+$formatted = $currencyService->format(299.0, 'NPR'); // "Rs. 299.00"
+
+// Get available gateways for currency
+$gateways = $currencyService->getAvailableGatewaysForCurrency('NPR');
+// Returns: ['esewa', 'khalti', 'fonepay', 'mock']
+
+// Check if gateway supports currency
+$supported = $currencyService->gatewaySupportsCurrency('esewa', 'USD'); // false
+
+// Get user's preferred currency
+$currency = $currencyService->getUserCurrency($user); // Respects user preference
+```
+
+**Supported Currencies**: NPR, USD, EUR, GBP, INR
+**Currency by Market**:
+- Nepal → NPR (eSewa, Khalti, Fonepay)
+- International → USD (Stripe)
+- India → INR (Stripe)
+- Europe → EUR (Stripe)
+- UK → GBP (Stripe)
+
 ## Key Laravel Patterns
 
 ### Plan Management
@@ -159,12 +187,24 @@ $organization->isTrialExpired();
 **Important**: Plan cache is cleared automatically in `attachPlan()`. Cache keys use pattern `org_{id}_*`.
 
 ### Nepal Payment Gateway Integration
-- Supported gateways: **eSewa**, **Khalti**, **Fonepay**
+- Supported gateways: **eSewa**, **Khalti**, **Fonepay**, **Mock** (development), **Stripe** (international)
 - Payment initiation: `POST /api/v1/payments/initiate`
 - Payment verification: `GET /api/v1/payments/{uuid}/verify`
 - Payment history: `GET /api/v1/payments/history`
 - Gateway services located in: `app/Services/PaymentGateway/`
 - Billing orchestration: `app/Services/BillingService.php`
+- Currency service: `app/Services/CurrencyService.php`
+
+#### Payment Gateway Callback Patterns
+**Critical**: Different gateways handle return URLs differently:
+- **eSewa**: Appends `?data=base64_encoded_json` to return URL. Extract `transaction_uuid` from decoded `data` parameter.
+- **Khalti**: Appends `&pidx=xxx&...` with `&` separator. Use `payment_uuid` from URL params.
+- **Fonepay**: Appends params with `&` separator. Use `payment_uuid` from URL params.
+
+**Implementation Notes**:
+- eSewa success/failure URLs should NOT include query params (eSewa uses `?` not `&` when appending)
+- Khalti/Fonepay URLs should include `?payment_uuid={uuid}` (they properly append with `&`)
+- Frontend success page extracts payment UUID from either URL params or eSewa's `data` parameter
 
 ### Organization & Workspace Management
 ```php
@@ -236,10 +276,20 @@ All API calls are made through Next.js Server Actions in `/actions`:
 4. **Success Callback** (`/payment/success`) - Verify payment & attach plan
 5. **Dashboard** - User redirected with active subscription
 
-### Payment Verification
-- eSewa: Uses `refId`, `amt`, `pid` parameters
-- Khalti: Uses `pidx` (payment index) parameter
-- Verification automatically attaches plan to organization upon success
+### Payment Verification Flow
+1. Gateway redirects user to success page with payment data
+2. Frontend extracts `payment_uuid`:
+   - **eSewa**: Decode base64 `data` param → extract `transaction_uuid`
+   - **Khalti/Fonepay**: Get `payment_uuid` from URL query param
+3. Frontend calls verification API: `GET /api/v1/payments/{uuid}/verify?{gateway_params}`
+4. Backend verifies with gateway and attaches plan to organization
+
+**Gateway-Specific Parameters**:
+- **eSewa v2**: `data` (base64), `transaction_uuid`, `total_amount`
+- **Khalti**: `pidx` (payment index), `transaction_id`, `status`
+- **Fonepay**: Implementation varies by integration type
+
+**Important**: Payment verification extracts all query params automatically via `VerifyPaymentRequest`
 
 ## Important Environment Variables
 
@@ -259,14 +309,21 @@ CACHE_DRIVER=redis
 QUEUE_CONNECTION=redis
 SESSION_DRIVER=redis
 
-# Payment Gateways
+# Payment Gateways (Nepal)
 PAYMENT_GATEWAY_DEFAULT=esewa
-ESEWA_MERCHANT_ID=
-ESEWA_SECRET_KEY=
+ESEWA_MERCHANT_ID=EPAYTEST
+ESEWA_SECRET_KEY=your_secret_key
+ESEWA_API_URL=https://rc-epay.esewa.com.np/api/epay/main/v2/form
+ESEWA_VERIFY_URL=https://rc.esewa.com.np/api/epay/transaction/status
 KHALTI_PUBLIC_KEY=
 KHALTI_SECRET_KEY=
+KHALTI_API_URL=https://khalti.com/api/v2/
 FONEPAY_MERCHANT_CODE=
 FONEPAY_SECRET=
+
+# Currency & Markets
+DEFAULT_CURRENCY=NPR
+CURRENCY_AUTO_DETECT=true
 
 # PostHog (optional)
 POSTHOG_API_KEY=
@@ -307,8 +364,17 @@ test('user can create organization', function () {
 
 ### Common Issues & Solutions
 
-**Issue**: Payment verification failing
-- **Solution**: Check that all gateway parameters are being passed correctly (refId for eSewa, pidx for Khalti)
+**Issue**: eSewa payment returns "405 Method Not Allowed" or malformed URL
+- **Solution**: Ensure success/failure URLs in `EsewaGateway` do NOT include `?payment_uuid=`. eSewa appends `?data=` (not `&data=`), causing double query separators. Frontend should extract `transaction_uuid` from the decoded `data` parameter.
+
+**Issue**: Payment verification shows "Resource not found"
+- **Solution**: Check that payment UUID is being extracted correctly on success page. eSewa sends it in `data` parameter, Khalti/Fonepay send it as `payment_uuid` URL param.
+
+**Issue**: Payment verification failing with missing parameters
+- **Solution**: Ensure all gateway callback params are passed to verification endpoint. Check `VerifyPaymentRequest` for expected parameters per gateway.
+
+**Issue**: Gateway not available for selected plan currency
+- **Solution**: Verify gateway supports the plan's currency in `config/currency.php` → `gateway_support`. Nepal gateways only support NPR.
 
 **Issue**: User context not set after switching organizations
 - **Solution**: Ensure frontend calls `POST /api/v1/user/current-organization/{uuid}` after org switch

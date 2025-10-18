@@ -8,12 +8,13 @@ import { toast } from "sonner";
 import { useUserStore } from "@/stores/user-store";
 import { updateOrganizationAction } from "@/actions/organization";
 import { loadUserData } from "@/lib/auth-client";
-import { Settings, AlertTriangle } from "lucide-react";
+import { Settings, AlertTriangle, Banknote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TooltipChild } from "@/components/ui/tooltip-child";
 import { OrganizationStats } from "@/interfaces";
+import { getCurrencySymbol } from "@/lib/currency";
 
 interface OrganizationOverviewProps {
   organizationStats: OrganizationStats | null;
@@ -28,9 +29,12 @@ const organizationDetailsSchema = z.object({
 
 type OrganizationDetailsForm = z.infer<typeof organizationDetailsSchema>;
 
-export function OrganizationOverview({}: OrganizationOverviewProps) {
+export function OrganizationOverview({ organizationStats }: OrganizationOverviewProps) {
   const { selectedOrganization } = useUserStore();
   const [isLoading, setIsLoading] = useState(false);
+
+  // Check if organization has any paid plans
+  const hasPaidPlan = organizationStats?.plan && organizationStats.plan.slug !== 'free';
 
   const {
     register,
@@ -146,6 +150,64 @@ export function OrganizationOverview({}: OrganizationOverviewProps) {
                 </Button>
               </div>
             </form>
+          </div>
+        </div>
+
+        {/* Currency & Market Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 py-8 border-b">
+          {/* Left Column - Title & Description */}
+          <div className="lg:col-span-1">
+            <div className="flex items-center gap-3 mb-3">
+              <Banknote className="h-5 w-5 text-[#005F5A]" />
+              <h2 className="text-lg font-semibold">Currency & Market</h2>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Your organization&apos;s currency is set based on your first paid plan purchase.
+            </p>
+          </div>
+
+          {/* Right Column - Form Controls */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="currency" className="text-sm font-medium">
+                Currency
+              </Label>
+              <div className="flex items-center gap-3">
+                <Input
+                  id="currency"
+                  value={`${organizationStats?.organization.currency || 'NPR'} (${getCurrencySymbol(organizationStats?.organization.currency || 'NPR')})`}
+                  disabled
+                  className="w-full bg-muted cursor-not-allowed"
+                />
+                {!hasPaidPlan && (
+                  <TooltipChild content="Currency will be set when you purchase your first paid plan">
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">
+                      Default
+                    </span>
+                  </TooltipChild>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {hasPaidPlan
+                  ? "Currency is locked after purchasing a paid plan and cannot be changed."
+                  : "Default currency is NPR (Nepalese Rupee). This will be updated when you purchase a plan."}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="market" className="text-sm font-medium">
+                Market
+              </Label>
+              <Input
+                id="market"
+                value={organizationStats?.organization.market || 'nepal'}
+                disabled
+                className="w-full bg-muted cursor-not-allowed capitalize"
+              />
+              <p className="text-xs text-muted-foreground">
+                Market determines which payment gateways are available for your organization.
+              </p>
+            </div>
           </div>
         </div>
 

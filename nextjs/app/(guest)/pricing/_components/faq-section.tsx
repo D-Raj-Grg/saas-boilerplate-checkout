@@ -116,7 +116,7 @@ const saasBoilerplateFaqs = [
         help. Our team is available to discuss how {process.env.NEXT_PUBLIC_APP_NAME} can best serve your needs. Feel free to reach
         out through our{" "}
         <Link
-          href={`mailto:support@${typeof window !== 'undefined' ? window.location.hostname : 'example.com'}`}
+          href={`mailto:support@example.com`}
           className="text-teal-600 hover:text-teal-700 underline font-medium transition-colors"
         >
           support team
@@ -181,7 +181,7 @@ export function FAQSection({ className }: FAQSectionProps) {
                   is here to help.
                 </p>
                 <Link
-                  href={`mailto:support@${typeof window !== 'undefined' ? window.location.hostname : 'example.com'}`}
+                  href={`mailto:support@example.com`}
                   className="inline-flex items-center justify-center w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold px-4 py-2.5 rounded-lg transition-colors"
                 >
                   Contact Support

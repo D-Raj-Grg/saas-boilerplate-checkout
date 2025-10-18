@@ -7,6 +7,10 @@ export const metadata: Metadata = {
   description: "Manage your organization's plan and subscription",
 };
 
+// Disable caching for this page to always fetch fresh plan data
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function PlansPage() {
   const statsResult = await getOrganizationStatsAction();
 

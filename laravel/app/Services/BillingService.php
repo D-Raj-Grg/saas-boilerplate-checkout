@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Services\PaymentGateway\EsewaGateway;
 use App\Services\PaymentGateway\FonepayGateway;
 use App\Services\PaymentGateway\KhaltiGateway;
+use App\Services\PaymentGateway\MockGateway;
 use App\Services\PaymentGateway\PaymentGatewayInterface;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -17,15 +18,24 @@ use Illuminate\Support\Facades\Log;
 
 class BillingService
 {
+    public function __construct(
+        protected CurrencyService $currencyService
+    ) {}
     /**
      * Get the appropriate payment gateway
      */
     public function getGateway(string $gateway): PaymentGatewayInterface
     {
+        // Prevent mock gateway in production
+        if ($gateway === 'mock' && app()->environment('production')) {
+            throw new Exception('Mock gateway is not available in production');
+        }
+
         return match ($gateway) {
             'esewa' => new EsewaGateway,
             'khalti' => new KhaltiGateway,
             'fonepay' => new FonepayGateway,
+            'mock' => new MockGateway,
             default => throw new Exception('Invalid payment gateway: '.$gateway),
         };
     }
@@ -60,18 +70,27 @@ class BillingService
                 ];
             }
 
+            // Validate gateway supports plan currency
+            if (! $this->currencyService->gatewaySupportsCurrency($gateway, $plan->currency)) {
+                return [
+                    'success' => false,
+                    'error' => "Payment gateway {$gateway} does not support {$plan->currency}",
+                ];
+            }
+
             // Create payment record
             $payment = Payment::create([
                 'organization_id' => $organization->id,
                 'user_id' => $user->id,
                 'gateway' => $gateway,
                 'amount' => $plan->price,
-                'currency' => config('payment-gateways.currency', 'NPR'),
+                'currency' => $plan->currency,
                 'status' => 'pending',
                 'metadata' => [
                     'plan_slug' => $planSlug,
                     'plan_name' => $plan->name,
                     'plan_billing_cycle' => $plan->billing_cycle,
+                    'plan_market' => $plan->market,
                 ],
             ]);
 
@@ -109,7 +128,8 @@ class BillingService
             return [
                 'success' => true,
                 'payment' => $payment,
-                'payment_url' => $result['payment_url'],
+                'payment_url' => $result['payment_url'] ?? null,
+                'form_params' => $result['form_params'] ?? null,
             ];
 
         } catch (Exception $e) {
@@ -146,6 +166,13 @@ class BillingService
 
             // Get gateway service
             $gatewayService = $this->getGateway($payment->gateway);
+
+            // For eSewa, inject total_amount and transaction_uuid from payment record
+            // This is needed because eSewa may not send these in callback
+            if ($payment->gateway === 'esewa') {
+                $verificationData['total_amount'] = $verificationData['total_amount'] ?? $payment->amount;
+                $verificationData['transaction_uuid'] = $verificationData['transaction_uuid'] ?? $payment->uuid;
+            }
 
             // Verify payment with gateway
             $verificationResult = $gatewayService->verifyPayment(

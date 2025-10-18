@@ -3,6 +3,8 @@ export interface Organization {
   name: string;
   slug: string;
   description: string;
+  currency: string;
+  market: string;
   total_workspaces: number;
   total_members: number;
   total_connections: number;
@@ -54,12 +56,16 @@ export interface Plan {
   };
   price: string;
   formatted_price: string;
+  purchased_at?: string;
+  started_at?: string;
+  status?: string;
 }
 
 export interface OrganizationStats {
   organization: Organization;
   workspaces: Workspace[];
-  plan: Plan;
+  plan: Plan | null;
+  all_plans: Plan[];
 }
 
 export interface OrganizationStatsResponse {

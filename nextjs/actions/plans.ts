@@ -10,6 +10,9 @@ export interface Plan {
   slug: string;
   description: string;
   price: number;
+  currency: string;
+  market: string;
+  prices?: Record<string, number> | null;
   max_price: number;
   billing_cycle: string;
   priority: number;

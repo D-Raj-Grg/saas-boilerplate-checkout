@@ -5,6 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { useUser, useSelectedOrganization } from "@/stores/user-store";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { getCurrencySymbol } from "@/lib/currency";
 
 interface PricingFeature {
     name: string;
@@ -207,11 +208,11 @@ export function PricingSlab({
                 <div className="flex items-baseline gap-2 flex-wrap">
                     {!isFreePlan && displayOldPrice && (
                         <span className="text-gray-400 line-through text-xl max-sm:text-lg">
-                            ${displayOldPrice}
+                            {getCurrencySymbol('NPR')}{displayOldPrice}
                         </span>
                     )}
                     <span className="text-[#005F5A] text-6xl font-bold max-md:text-5xl max-sm:text-4xl">
-                        {isCustomPrice ? 'Custom' : `$${cost || currentPrice || 0}`}
+                        {isCustomPrice ? 'Custom' : `${getCurrencySymbol('NPR')} ${cost || currentPrice || 0}`}
                     </span>
                     <span className="text-gray-600 text-xl max-sm:text-base">
                         /year

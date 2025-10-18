@@ -217,13 +217,12 @@ class OrganizationService
     {
         $workspaces = $organization->workspaces()->with([
             'users',
-            'connections',
         ])->get();
 
         // Calculate workspace counts and organization totals
         $workspaceData = $workspaces->map(function ($workspace) {
             $totalMembers = $workspace->users->count();
-            $totalConnections = $workspace->connections->count();
+            $totalConnections = 0; // Connections not implemented yet
 
             return [
                 'uuid' => $workspace->uuid,
@@ -247,6 +246,8 @@ class OrganizationService
                 'name' => $organization->name,
                 'slug' => $organization->slug,
                 'description' => $organization->description,
+                'currency' => $organization->currency,
+                'market' => $organization->market,
                 'total_workspaces' => $workspaces->count(),
                 'total_members' => $totalMembers,
                 'total_connections' => $totalConnections,
@@ -254,13 +255,32 @@ class OrganizationService
                 'updated_at' => $organization->updated_at,
             ],
             'workspaces' => $workspaceData,
-            'plan' => $organization->getCurrentPlan() ? [
-                'uuid' => $organization->getCurrentPlan()->uuid,
-                'name' => $organization->getCurrentPlan()->name,
-                'slug' => $organization->getCurrentPlan()->slug,
-                'price' => $organization->getCurrentPlan()->price,
-                'formatted_price' => $organization->getCurrentPlan()->formatted_price,
-            ] : null,
+            'plan' => $organization->getCurrentPlan() ? (function () use ($organization) {
+                $plan = $organization->getCurrentPlan();
+                $plan->load('limits');
+
+                // Separate features (boolean) and limits (numeric) from plan_limits table
+                $features = [];
+                $limits = [];
+
+                foreach ($plan->limits as $limit) {
+                    if ($limit->type === 'limit') {
+                        $limits[$limit->feature] = (int) $limit->value;
+                    } else {
+                        $features[$limit->feature] = (bool) $limit->value;
+                    }
+                }
+
+                return [
+                    'uuid' => $plan->uuid,
+                    'name' => $plan->name,
+                    'slug' => $plan->slug,
+                    'features' => (object) $features,
+                    'limits' => (object) $limits,
+                    'price' => (string) $plan->price,
+                    'formatted_price' => $plan->formatted_price,
+                ];
+            })() : null,
             'all_plans' => $organization->activePlans->map(function ($plan) {
                 /** @var \App\Models\Plan $plan */
                 return [
@@ -268,6 +288,10 @@ class OrganizationService
                     'name' => $plan->name,
                     'slug' => $plan->slug,
                     'price' => $plan->price,
+                    'formatted_price' => $plan->formatted_price,
+                    'purchased_at' => $plan->pivot->created_at ?? null,
+                    'started_at' => $plan->pivot->started_at ?? null,
+                    'status' => $plan->pivot->status ?? 'active',
                 ];
             })->values(),
         ];

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { verifyPaymentAction } from "@/actions/payment";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,15 +14,40 @@ export default function PaymentSuccessPage() {
   const [status, setStatus] = useState<"verifying" | "success" | "failed">("verifying");
   const [errorMessage, setErrorMessage] = useState<string>("");
 
+  // Prevent double execution due to React re-renders
+  const hasVerified = useRef(false);
+
   useEffect(() => {
+    // Skip if already verified (prevents double API calls)
+    if (hasVerified.current) {
+      return;
+    }
+
     const verifyPayment = async () => {
-      const paymentUuid = searchParams.get("payment_uuid");
+      // Try to get payment_uuid from URL params first (Khalti, Fonepay)
+      let paymentUuid = searchParams.get("payment_uuid");
+
+      // If not found, try to extract from eSewa's base64 data parameter
+      if (!paymentUuid) {
+        const esewaData = searchParams.get("data");
+        if (esewaData) {
+          try {
+            const decoded = JSON.parse(atob(esewaData));
+            paymentUuid = decoded.transaction_uuid;
+          } catch (e) {
+            console.error("Failed to decode eSewa data", e);
+          }
+        }
+      }
 
       if (!paymentUuid) {
         setStatus("failed");
         setErrorMessage("Payment information not found");
         return;
       }
+
+      // Mark as verified before making the call
+      hasVerified.current = true;
 
       // Collect all verification parameters
       const verificationParams: Record<string, string> = {};
@@ -53,7 +78,7 @@ export default function PaymentSuccessPage() {
     };
 
     verifyPayment();
-  }, [searchParams, router]);
+  }, [searchParams]);
 
   return (
     <div className="container max-w-2xl mx-auto py-16 px-4">

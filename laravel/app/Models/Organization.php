@@ -36,6 +36,8 @@ class Organization extends Model
         'description',
         'owner_id',
         'settings',
+        'currency',
+        'market',
     ];
 
     protected $casts = [
@@ -186,6 +188,14 @@ class Organization extends Model
                     'status' => 'cancelled',
                     'ends_at' => now(),
                     'notes' => 'Replaced by paid plan',
+                ]);
+            }
+
+            // Set organization currency and market from first paid plan
+            if ($this->currency === 'NPR' && $this->market === 'nepal') {
+                $this->update([
+                    'currency' => $plan->currency,
+                    'market' => $plan->market,
                 ]);
             }
         }

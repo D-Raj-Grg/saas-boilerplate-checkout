@@ -13,6 +13,7 @@ use App\Services\BillingService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -27,7 +28,7 @@ class PaymentController extends Controller
     /**
      * Initiate a payment for a plan (supports guest checkout)
      */
-    public function initiate(InitiatePaymentRequest $request): JsonResponse
+    public function initiate(InitiatePaymentRequest $request): JsonResponse|Response
     {
         try {
             $user = Auth::guard('sanctum')->user();
@@ -96,13 +97,21 @@ class PaymentController extends Controller
                 ], 400);
             }
 
+            // Build response data
+            $responseData = [
+                'payment_uuid' => $result['payment']->uuid,
+                'payment_url' => $result['payment_url'],
+                'gateway' => $gateway,
+            ];
+
+            // For eSewa, include form parameters for frontend to build the form
+            if ($gateway === 'esewa' && isset($result['form_params'])) {
+                $responseData['form_params'] = $result['form_params'];
+            }
+
             return response()->json([
                 'success' => true,
-                'data' => [
-                    'payment_uuid' => $result['payment']->uuid,
-                    'payment_url' => $result['payment_url'],
-                    'gateway' => $gateway,
-                ],
+                'data' => $responseData,
             ]);
 
         } catch (Exception $e) {
@@ -137,7 +146,16 @@ class PaymentController extends Controller
             }
 
             // Get verification data from request
-            $verificationData = $request->only(['oid', 'refId', 'amt', 'pidx', 'transaction_id', 'status', 'q', 'pid']);
+            $verificationData = $request->only([
+                // eSewa v1 (legacy)
+                'oid', 'refId', 'amt', 'pid',
+                // eSewa v2
+                'data', 'transaction_uuid', 'total_amount',
+                // Khalti
+                'pidx', 'transaction_id', 'status',
+                // Generic
+                'q', 'payment_uuid',
+            ]);
 
             // Verify payment and attach plan
             $result = $this->billingService->verifyAndAttachPlan($payment, $verificationData);
@@ -339,13 +357,14 @@ class PaymentController extends Controller
         $organization = Organization::create([
             'name' => $user->name."'s Organization",
             'user_id' => $user->id,
+            'owner_id' => $user->id,
         ]);
 
         // Attach user as owner
         $organization->users()->attach($user->id, ['role' => OrganizationRole::OWNER->value]);
 
-        // Set as current organization
-        $user->update(['current_organization_uuid' => $organization->uuid]);
+        // Set as current organization (using ID, not UUID)
+        $user->update(['current_organization_id' => $organization->id]);
 
         return $organization;
     }

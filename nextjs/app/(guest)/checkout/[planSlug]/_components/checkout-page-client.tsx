@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { useUser } from "@/stores/user-store";
+import { formatCurrency, getAvailableGatewaysForCurrency } from "@/lib/currency";
 
 interface CheckoutPageClientProps {
   plan: Plan;
@@ -18,7 +19,10 @@ interface CheckoutPageClientProps {
 
 export function CheckoutPageClient({ plan }: CheckoutPageClientProps) {
   const user = useUser();
-  const [selectedGateway, setSelectedGateway] = useState<PaymentGateway>("esewa");
+  const availableGateways = getAvailableGatewaysForCurrency(plan.currency);
+  const [selectedGateway, setSelectedGateway] = useState<PaymentGateway>(
+    availableGateways.includes("esewa") ? "esewa" : (availableGateways[0] as PaymentGateway)
+  );
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Guest checkout fields
@@ -59,14 +63,51 @@ export function CheckoutPageClient({ plan }: CheckoutPageClientProps) {
         guest_email: user ? undefined : guestEmail,
       });
 
-      if (!result.success || !result.paymentUrl) {
+      if (!result.success) {
         toast.error(result.error || "Failed to initiate payment");
         setIsProcessing(false);
         return;
       }
 
-      // Redirect to payment gateway
-      window.location.href = result.paymentUrl;
+      // Handle eSewa - Build and submit form directly (matching reference implementation)
+      if (result.gateway === "esewa" && result.formParams && result.paymentUrl) {
+        toast.success("Redirecting to eSewa payment gateway...");
+
+        console.log("eSewa Payment Data:", {
+          paymentUrl: result.paymentUrl,
+          formParams: result.formParams,
+        });
+
+        // Create form element
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = result.paymentUrl;
+
+        // Add all form fields as hidden inputs
+        Object.entries(result.formParams).forEach(([key, value]) => {
+          const input = document.createElement("input");
+          input.type = "hidden";
+          input.name = key;
+          input.value = String(value);
+          form.appendChild(input);
+          console.log(`Form field: ${key} = ${value}`);
+        });
+
+        // Append to body, submit, and remove
+        document.body.appendChild(form);
+        console.log("Submitting eSewa form...");
+        form.submit();
+        document.body.removeChild(form);
+
+        // Note: Form submission will navigate away, so no need to reset isProcessing
+        return;
+      }
+
+      // Redirect to payment gateway (works for Khalti, Mock, etc.)
+      if (result.paymentUrl) {
+        toast.success("Redirecting to payment gateway...");
+        window.location.href = result.paymentUrl;
+      }
     } catch (error) {
       console.error(error);
       toast.error("An unexpected error occurred");
@@ -103,14 +144,14 @@ export function CheckoutPageClient({ plan }: CheckoutPageClientProps) {
               </div>
               <div className="flex justify-between items-center mt-2">
                 <span className="text-muted-foreground">Amount</span>
-                <span className="text-2xl font-bold">NPR {plan.price}</span>
+                <span className="text-2xl font-bold">{formatCurrency(plan.price, plan.currency)}</span>
               </div>
             </div>
 
             <div className="border-t pt-4">
               <div className="flex justify-between items-center text-lg font-bold">
                 <span>Total</span>
-                <span>NPR {plan.price}</span>
+                <span>{formatCurrency(plan.price, plan.currency)}</span>
               </div>
             </div>
           </CardContent>
@@ -164,32 +205,60 @@ export function CheckoutPageClient({ plan }: CheckoutPageClientProps) {
               value={selectedGateway}
               onValueChange={(value) => setSelectedGateway(value as PaymentGateway)}
             >
-              {/* eSewa */}
-              <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-accent" onClick={() => setSelectedGateway("esewa")}>
-                <RadioGroupItem value="esewa" id="esewa" />
-                <Label htmlFor="esewa" className="flex-1 cursor-pointer">
-                  <div className="font-medium">eSewa</div>
-                  <div className="text-sm text-muted-foreground">Pay with eSewa wallet</div>
-                </Label>
-              </div>
+              {/* eSewa - NPR only */}
+              {availableGateways.includes("esewa") && (
+                <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-accent" onClick={() => setSelectedGateway("esewa")}>
+                  <RadioGroupItem value="esewa" id="esewa" />
+                  <Label htmlFor="esewa" className="flex-1 cursor-pointer">
+                    <div className="font-medium">eSewa</div>
+                    <div className="text-sm text-muted-foreground">Pay with eSewa wallet</div>
+                  </Label>
+                </div>
+              )}
 
-              {/* Khalti */}
-              <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-accent" onClick={() => setSelectedGateway("khalti")}>
-                <RadioGroupItem value="khalti" id="khalti" />
-                <Label htmlFor="khalti" className="flex-1 cursor-pointer">
-                  <div className="font-medium">Khalti</div>
-                  <div className="text-sm text-muted-foreground">Pay with Khalti wallet</div>
-                </Label>
-              </div>
+              {/* Khalti - NPR only */}
+              {availableGateways.includes("khalti") && (
+                <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-accent" onClick={() => setSelectedGateway("khalti")}>
+                  <RadioGroupItem value="khalti" id="khalti" />
+                  <Label htmlFor="khalti" className="flex-1 cursor-pointer">
+                    <div className="font-medium">Khalti</div>
+                    <div className="text-sm text-muted-foreground">Pay with Khalti wallet</div>
+                  </Label>
+                </div>
+              )}
 
-              {/* Fonepay */}
-              <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-accent" onClick={() => setSelectedGateway("fonepay")}>
-                <RadioGroupItem value="fonepay" id="fonepay" />
-                <Label htmlFor="fonepay" className="flex-1 cursor-pointer">
-                  <div className="font-medium">Fonepay</div>
-                  <div className="text-sm text-muted-foreground">Pay with Fonepay</div>
-                </Label>
-              </div>
+              {/* Fonepay - NPR only */}
+              {availableGateways.includes("fonepay") && (
+                <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-accent" onClick={() => setSelectedGateway("fonepay")}>
+                  <RadioGroupItem value="fonepay" id="fonepay" />
+                  <Label htmlFor="fonepay" className="flex-1 cursor-pointer">
+                    <div className="font-medium">Fonepay</div>
+                    <div className="text-sm text-muted-foreground">Pay with Fonepay</div>
+                  </Label>
+                </div>
+              )}
+
+              {/* Stripe - International currencies */}
+              {availableGateways.includes("stripe") && (
+                <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-accent" onClick={() => setSelectedGateway("stripe")}>
+                  <RadioGroupItem value="stripe" id="stripe" />
+                  <Label htmlFor="stripe" className="flex-1 cursor-pointer">
+                    <div className="font-medium">Stripe</div>
+                    <div className="text-sm text-muted-foreground">Pay with credit/debit card</div>
+                  </Label>
+                </div>
+              )}
+
+              {/* Mock Processor - Development/Testing Only */}
+              {process.env.NODE_ENV === "development" && availableGateways.includes("mock") && (
+                <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-accent border-orange-200 bg-orange-50" onClick={() => setSelectedGateway("mock")}>
+                  <RadioGroupItem value="mock" id="mock" />
+                  <Label htmlFor="mock" className="flex-1 cursor-pointer">
+                    <div className="font-medium text-orange-800">Mock Processor</div>
+                    <div className="text-sm text-orange-600">Test payment (Development only)</div>
+                  </Label>
+                </div>
+              )}
             </RadioGroup>
 
             <Button
@@ -204,7 +273,7 @@ export function CheckoutPageClient({ plan }: CheckoutPageClientProps) {
                   Processing...
                 </>
               ) : (
-                `Pay NPR ${plan.price}`
+                `Pay ${formatCurrency(plan.price, plan.currency)}`
               )}
             </Button>
 
