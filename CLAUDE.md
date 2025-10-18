@@ -195,6 +195,36 @@ $organization->isTrialExpired();
 - Billing orchestration: `app/Services/BillingService.php`
 - Currency service: `app/Services/CurrencyService.php`
 
+#### Guest Checkout Flow (CRITICAL)
+**Important**: Guest checkout has smart user account reuse to prevent "account exists" errors on retry:
+
+1. **User Creation Timing**: Users are created **immediately** when payment is initiated (required by database foreign key constraints)
+2. **Smart Reuse Logic** (`PaymentController.php:47-97`):
+   - Check if email exists
+   - If exists → Check if user has ANY completed payments
+   - If NO completed payments → **Reuse account** and update details (password, first_name, last_name)
+   - If YES completed payments → Show "Please login" error
+3. **Auto-Login After Payment** (`PaymentController.php:208-245`):
+   - After successful payment verification, check if user was created < 5 minutes ago
+   - If yes → Generate Sanctum auth token and return in response
+   - Frontend sets token in HTTP-only cookie → User auto-logged in
+4. **Welcome Email**: Sent after successful payment for guest checkouts
+
+**Guest Checkout Fields Required**:
+- `guest_first_name` (required)
+- `guest_last_name` (required)
+- `guest_email` (required)
+- `guest_password` (required, min 8 characters)
+
+**Flow Example**:
+```
+1. Guest fills checkout → User account created
+2. Goes to eSewa → Abandons payment
+3. Returns, fills same email → Account reused, password updated
+4. Completes payment → Auto-logged in with latest password
+5. Redirected to dashboard authenticated
+```
+
 #### Payment Gateway Callback Patterns
 **Critical**: Different gateways handle return URLs differently:
 - **eSewa**: Appends `?data=base64_encoded_json` to return URL. Extract `transaction_uuid` from decoded `data` parameter.
@@ -204,6 +234,7 @@ $organization->isTrialExpired();
 - eSewa success/failure URLs should NOT include query params (eSewa uses `?` not `&` when appending)
 - Khalti URLs should include `?payment_uuid={uuid}` (properly appends with `&`)
 - Frontend success page extracts payment UUID from either URL params or eSewa's `data` parameter
+- Auto-login token only returned for users created < 5 minutes ago (guest checkouts)
 
 ### Organization & Workspace Management
 ```php
@@ -360,6 +391,8 @@ test('user can create organization', function () {
 
 ### Common Issues & Solutions
 
+#### Payment Gateway Issues
+
 **Issue**: eSewa payment returns "405 Method Not Allowed" or malformed URL
 - **Solution**: Ensure success/failure URLs in `EsewaGateway` do NOT include `?payment_uuid=`. eSewa appends `?data=` (not `&data=`), causing double query separators. Frontend should extract `transaction_uuid` from the decoded `data` parameter.
 
@@ -371,6 +404,19 @@ test('user can create organization', function () {
 
 **Issue**: Gateway not available for selected plan currency
 - **Solution**: Verify gateway supports the plan's currency in `config/currency.php` → `gateway_support`. Nepal gateways only support NPR.
+
+#### Guest Checkout Issues
+
+**Issue**: "An account with this email already exists" error on retry
+- **Solution**: This should NOT happen anymore. Check `PaymentController.php:50-90` for smart reuse logic. Ensure the check for completed payments is working: `Payment::where('user_id', $existingUser->id)->where('status', 'completed')->exists()`
+
+**Issue**: Guest user not auto-logged in after payment
+- **Solution**: Check if backend is returning `access_token` in verification response. User must be created < 5 minutes ago. Verify `PaymentController.php:208-235` and frontend `payment/success/page.tsx:65-69`
+
+**Issue**: Guest user can't login with password after payment
+- **Solution**: Password might have been updated during retry. Latest password from most recent checkout attempt is used. Check user's password hash was updated in `PaymentController.php:71-76`
+
+#### General Issues
 
 **Issue**: User context not set after switching organizations
 - **Solution**: Ensure frontend calls `POST /api/v1/user/current-organization/{uuid}` after org switch
