@@ -8,7 +8,6 @@ use App\Models\Payment;
 use App\Models\Plan;
 use App\Models\User;
 use App\Services\PaymentGateway\EsewaGateway;
-use App\Services\PaymentGateway\FonepayGateway;
 use App\Services\PaymentGateway\KhaltiGateway;
 use App\Services\PaymentGateway\MockGateway;
 use App\Services\PaymentGateway\PaymentGatewayInterface;
@@ -34,7 +33,6 @@ class BillingService
         return match ($gateway) {
             'esewa' => new EsewaGateway,
             'khalti' => new KhaltiGateway,
-            'fonepay' => new FonepayGateway,
             'mock' => new MockGateway,
             default => throw new Exception('Invalid payment gateway: '.$gateway),
         };

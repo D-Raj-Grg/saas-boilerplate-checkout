@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { remoteGet, remotePost } from "@/lib/request";
 
 // Payment Gateway Types
-export type PaymentGateway = "esewa" | "khalti" | "fonepay" | "stripe" | "mock";
+export type PaymentGateway = "esewa" | "khalti" | "stripe" | "mock";
 
 // Payment Initiation
 export interface InitiatePaymentData {

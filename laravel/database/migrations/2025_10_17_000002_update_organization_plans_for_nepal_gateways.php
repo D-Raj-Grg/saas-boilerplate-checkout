@@ -20,7 +20,7 @@ return new class extends Migration
             ]);
 
             // Add Nepal payment gateway columns
-            $table->string('payment_gateway', 50)->nullable()->after('plan_id'); // esewa, khalti, fonepay, free
+            $table->string('payment_gateway', 50)->nullable()->after('plan_id'); // esewa, khalti, stripe, mock, free
             $table->string('gateway_transaction_id')->nullable()->after('payment_gateway')->index();
             $table->string('gateway_customer_id')->nullable()->after('gateway_transaction_id');
 

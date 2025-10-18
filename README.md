@@ -13,12 +13,12 @@ The backend API built with Laravel, featuring:
 - Workspace management
 - User profile management
 - Plans and pricing integration
-- Nepal payment gateway integration (eSewa, Khalti, Fonepay)
+- Nepal payment gateway integration (eSewa, Khalti)
 - Email and queue configuration
 
 **Configuration:**
 - Copy `.env.example` to `.env`
-- Configure payment gateway credentials (eSewa, Khalti, Fonepay)
+- Configure payment gateway credentials (eSewa, Khalti)
 - Set up email provider settings
 - Configure queue driver
 - See `/laravel/README.md` for detailed setup instructions

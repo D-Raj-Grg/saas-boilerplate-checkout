@@ -21,7 +21,7 @@ return new class extends Migration
             $table->foreignId('organization_plan_id')->nullable()->constrained()->onDelete('set null');
 
             // Payment gateway info
-            $table->string('gateway', 50)->index(); // esewa, khalti, fonepay
+            $table->string('gateway', 50)->index(); // esewa, khalti, stripe, mock
             $table->decimal('amount', 10, 2);
             $table->string('currency', 3)->default('NPR');
 

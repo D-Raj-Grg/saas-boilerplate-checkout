@@ -114,7 +114,6 @@ export function getAvailableGatewaysForCurrency(currency: string): string[] {
   const gatewaySupport: Record<string, string[]> = {
     esewa: ["NPR"],
     khalti: ["NPR"],
-    fonepay: ["NPR"],
     stripe: ["USD", "EUR", "GBP", "INR"],
     mock: ["NPR", "USD", "EUR", "GBP", "INR"], // Mock supports all for testing
   };

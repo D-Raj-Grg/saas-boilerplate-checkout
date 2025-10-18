@@ -121,7 +121,6 @@ return [
     'gateway_support' => [
         'esewa' => ['NPR'],
         'khalti' => ['NPR'],
-        'fonepay' => ['NPR'],
         'stripe' => ['USD', 'EUR', 'GBP', 'INR'],
         'mock' => ['NPR', 'USD', 'EUR', 'GBP', 'INR'], // Mock supports all for testing
     ],

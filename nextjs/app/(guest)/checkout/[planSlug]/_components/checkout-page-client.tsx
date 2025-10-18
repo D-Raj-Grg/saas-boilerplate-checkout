@@ -227,17 +227,6 @@ export function CheckoutPageClient({ plan }: CheckoutPageClientProps) {
                 </div>
               )}
 
-              {/* Fonepay - NPR only */}
-              {availableGateways.includes("fonepay") && (
-                <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-accent" onClick={() => setSelectedGateway("fonepay")}>
-                  <RadioGroupItem value="fonepay" id="fonepay" />
-                  <Label htmlFor="fonepay" className="flex-1 cursor-pointer">
-                    <div className="font-medium">Fonepay</div>
-                    <div className="text-sm text-muted-foreground">Pay with Fonepay</div>
-                  </Label>
-                </div>
-              )}
-
               {/* Stripe - International currencies */}
               {availableGateways.includes("stripe") && (
                 <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-accent" onClick={() => setSelectedGateway("stripe")}>

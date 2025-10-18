@@ -24,7 +24,7 @@ export default function PaymentSuccessPage() {
     }
 
     const verifyPayment = async () => {
-      // Try to get payment_uuid from URL params first (Khalti, Fonepay)
+      // Try to get payment_uuid from URL params first (Khalti)
       let paymentUuid = searchParams.get("payment_uuid");
 
       // If not found, try to extract from eSewa's base64 data parameter

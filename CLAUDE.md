@@ -142,7 +142,7 @@ $formatted = $currencyService->format(299.0, 'NPR'); // "Rs. 299.00"
 
 // Get available gateways for currency
 $gateways = $currencyService->getAvailableGatewaysForCurrency('NPR');
-// Returns: ['esewa', 'khalti', 'fonepay', 'mock']
+// Returns: ['esewa', 'khalti', 'mock']
 
 // Check if gateway supports currency
 $supported = $currencyService->gatewaySupportsCurrency('esewa', 'USD'); // false
@@ -153,7 +153,7 @@ $currency = $currencyService->getUserCurrency($user); // Respects user preferenc
 
 **Supported Currencies**: NPR, USD, EUR, GBP, INR
 **Currency by Market**:
-- Nepal → NPR (eSewa, Khalti, Fonepay)
+- Nepal → NPR (eSewa, Khalti)
 - International → USD (Stripe)
 - India → INR (Stripe)
 - Europe → EUR (Stripe)
@@ -187,7 +187,7 @@ $organization->isTrialExpired();
 **Important**: Plan cache is cleared automatically in `attachPlan()`. Cache keys use pattern `org_{id}_*`.
 
 ### Nepal Payment Gateway Integration
-- Supported gateways: **eSewa**, **Khalti**, **Fonepay**, **Mock** (development), **Stripe** (international)
+- Supported gateways: **eSewa**, **Khalti**, **Mock** (development), **Stripe** (international)
 - Payment initiation: `POST /api/v1/payments/initiate`
 - Payment verification: `GET /api/v1/payments/{uuid}/verify`
 - Payment history: `GET /api/v1/payments/history`
@@ -199,11 +199,10 @@ $organization->isTrialExpired();
 **Critical**: Different gateways handle return URLs differently:
 - **eSewa**: Appends `?data=base64_encoded_json` to return URL. Extract `transaction_uuid` from decoded `data` parameter.
 - **Khalti**: Appends `&pidx=xxx&...` with `&` separator. Use `payment_uuid` from URL params.
-- **Fonepay**: Appends params with `&` separator. Use `payment_uuid` from URL params.
 
 **Implementation Notes**:
 - eSewa success/failure URLs should NOT include query params (eSewa uses `?` not `&` when appending)
-- Khalti/Fonepay URLs should include `?payment_uuid={uuid}` (they properly append with `&`)
+- Khalti URLs should include `?payment_uuid={uuid}` (properly appends with `&`)
 - Frontend success page extracts payment UUID from either URL params or eSewa's `data` parameter
 
 ### Organization & Workspace Management
@@ -271,7 +270,7 @@ All API calls are made through Next.js Server Actions in `/actions`:
 
 ### Complete User Journey
 1. **Pricing Page** (`/pricing`) - User browses plans
-2. **Checkout Page** (`/checkout/[planSlug]`) - Select payment gateway (eSewa/Khalti/Fonepay)
+2. **Checkout Page** (`/checkout/[planSlug]`) - Select payment gateway (eSewa/Khalti)
 3. **Payment Gateway** - User completes payment on external gateway
 4. **Success Callback** (`/payment/success`) - Verify payment & attach plan
 5. **Dashboard** - User redirected with active subscription
@@ -280,14 +279,13 @@ All API calls are made through Next.js Server Actions in `/actions`:
 1. Gateway redirects user to success page with payment data
 2. Frontend extracts `payment_uuid`:
    - **eSewa**: Decode base64 `data` param → extract `transaction_uuid`
-   - **Khalti/Fonepay**: Get `payment_uuid` from URL query param
+   - **Khalti**: Get `payment_uuid` from URL query param
 3. Frontend calls verification API: `GET /api/v1/payments/{uuid}/verify?{gateway_params}`
 4. Backend verifies with gateway and attaches plan to organization
 
 **Gateway-Specific Parameters**:
 - **eSewa v2**: `data` (base64), `transaction_uuid`, `total_amount`
 - **Khalti**: `pidx` (payment index), `transaction_id`, `status`
-- **Fonepay**: Implementation varies by integration type
 
 **Important**: Payment verification extracts all query params automatically via `VerifyPaymentRequest`
 
@@ -318,8 +316,6 @@ ESEWA_VERIFY_URL=https://rc.esewa.com.np/api/epay/transaction/status
 KHALTI_PUBLIC_KEY=
 KHALTI_SECRET_KEY=
 KHALTI_API_URL=https://khalti.com/api/v2/
-FONEPAY_MERCHANT_CODE=
-FONEPAY_SECRET=
 
 # Currency & Markets
 DEFAULT_CURRENCY=NPR
@@ -368,7 +364,7 @@ test('user can create organization', function () {
 - **Solution**: Ensure success/failure URLs in `EsewaGateway` do NOT include `?payment_uuid=`. eSewa appends `?data=` (not `&data=`), causing double query separators. Frontend should extract `transaction_uuid` from the decoded `data` parameter.
 
 **Issue**: Payment verification shows "Resource not found"
-- **Solution**: Check that payment UUID is being extracted correctly on success page. eSewa sends it in `data` parameter, Khalti/Fonepay send it as `payment_uuid` URL param.
+- **Solution**: Check that payment UUID is being extracted correctly on success page. eSewa sends it in `data` parameter, Khalti sends it as `payment_uuid` URL param.
 
 **Issue**: Payment verification failing with missing parameters
 - **Solution**: Ensure all gateway callback params are passed to verification endpoint. Check `VerifyPaymentRequest` for expected parameters per gateway.

@@ -24,7 +24,7 @@ class InitiatePaymentRequest extends FormRequest
     {
         return [
             'plan_slug' => ['required', 'string', 'exists:plans,slug'],
-            'gateway' => ['required', 'string', Rule::in(['esewa', 'khalti', 'fonepay', 'mock'])],
+            'gateway' => ['required', 'string', Rule::in(['esewa', 'khalti', 'stripe', 'mock'])],
             'guest_name' => ['nullable', 'string', 'max:255'],
             'guest_email' => ['nullable', 'email', 'max:255'],
         ];

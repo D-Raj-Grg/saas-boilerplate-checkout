@@ -6,7 +6,7 @@ return [
     | Payment Gateways Configuration
     |--------------------------------------------------------------------------
     |
-    | Configure Nepal-based payment gateways (eSewa, Khalti, Fonepay)
+    | Configure payment gateways (eSewa, Khalti, Stripe)
     |
     */
 
@@ -26,12 +26,6 @@ return [
         'api_url' => env('KHALTI_API_URL', 'https://khalti.com/api/v2/'),
         'return_url' => env('FRONTEND_URL').'/payment/return',
         'website_url' => env('FRONTEND_URL'),
-    ],
-
-    'fonepay' => [
-        'merchant_code' => env('FONEPAY_MERCHANT_CODE'),
-        'secret' => env('FONEPAY_SECRET'),
-        'api_url' => env('FONEPAY_API_URL', 'https://fonepay.com/api/'),
     ],
 
     /*
