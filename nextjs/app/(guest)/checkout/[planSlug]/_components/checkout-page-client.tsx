@@ -36,8 +36,11 @@ export function CheckoutPageClient({ plan, initialUserData }: CheckoutPageClient
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Guest checkout fields
-  const [guestName, setGuestName] = useState("");
+  const [guestFirstName, setGuestFirstName] = useState("");
+  const [guestLastName, setGuestLastName] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
+  const [guestPassword, setGuestPassword] = useState("");
+  const [guestConfirmPassword, setGuestConfirmPassword] = useState("");
 
   const handleCheckout = async () => {
     if (!selectedGateway) {
@@ -47,8 +50,12 @@ export function CheckoutPageClient({ plan, initialUserData }: CheckoutPageClient
 
     // Validate guest fields if user is not authenticated
     if (!user) {
-      if (!guestName.trim()) {
-        toast.error("Please enter your name");
+      if (!guestFirstName.trim()) {
+        toast.error("Please enter your first name");
+        return;
+      }
+      if (!guestLastName.trim()) {
+        toast.error("Please enter your last name");
         return;
       }
       if (!guestEmail.trim()) {
@@ -61,6 +68,18 @@ export function CheckoutPageClient({ plan, initialUserData }: CheckoutPageClient
         toast.error("Please enter a valid email address");
         return;
       }
+      if (!guestPassword.trim()) {
+        toast.error("Please enter a password");
+        return;
+      }
+      if (guestPassword.length < 8) {
+        toast.error("Password must be at least 8 characters");
+        return;
+      }
+      if (guestPassword !== guestConfirmPassword) {
+        toast.error("Passwords do not match");
+        return;
+      }
     }
 
     setIsProcessing(true);
@@ -69,8 +88,10 @@ export function CheckoutPageClient({ plan, initialUserData }: CheckoutPageClient
       const result = await initiatePaymentAction({
         plan_slug: plan.slug,
         gateway: selectedGateway,
-        guest_name: user ? undefined : guestName,
+        guest_first_name: user ? undefined : guestFirstName,
+        guest_last_name: user ? undefined : guestLastName,
         guest_email: user ? undefined : guestEmail,
+        guest_password: user ? undefined : guestPassword,
       });
 
       if (!result.success) {
@@ -171,20 +192,33 @@ export function CheckoutPageClient({ plan, initialUserData }: CheckoutPageClient
         {!user && (
           <Card>
             <CardHeader>
-              <CardTitle>Your Information</CardTitle>
-              <CardDescription>We&apos;ll create an account for you</CardDescription>
+              <CardTitle>Create Your Account</CardTitle>
+              <CardDescription>Enter your details to complete checkout</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="guest-name">Full Name</Label>
-                <Input
-                  id="guest-name"
-                  type="text"
-                  placeholder="John Doe"
-                  value={guestName}
-                  onChange={(e) => setGuestName(e.target.value)}
-                  required
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="guest-first-name">First Name</Label>
+                  <Input
+                    id="guest-first-name"
+                    type="text"
+                    placeholder="John"
+                    value={guestFirstName}
+                    onChange={(e) => setGuestFirstName(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="guest-last-name">Last Name</Label>
+                  <Input
+                    id="guest-last-name"
+                    type="text"
+                    placeholder="Doe"
+                    value={guestLastName}
+                    onChange={(e) => setGuestLastName(e.target.value)}
+                    required
+                  />
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="guest-email">Email Address</Label>
@@ -196,10 +230,32 @@ export function CheckoutPageClient({ plan, initialUserData }: CheckoutPageClient
                   onChange={(e) => setGuestEmail(e.target.value)}
                   required
                 />
-                <p className="text-xs text-muted-foreground">
-                  You&apos;ll use this email to login after payment
-                </p>
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="guest-password">Password</Label>
+                <Input
+                  id="guest-password"
+                  type="password"
+                  placeholder="Minimum 8 characters"
+                  value={guestPassword}
+                  onChange={(e) => setGuestPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="guest-confirm-password">Confirm Password</Label>
+                <Input
+                  id="guest-confirm-password"
+                  type="password"
+                  placeholder="Re-enter your password"
+                  value={guestConfirmPassword}
+                  onChange={(e) => setGuestConfirmPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Your account will be created after successful payment
+              </p>
             </CardContent>
           </Card>
         )}

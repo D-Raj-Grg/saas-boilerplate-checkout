@@ -36,10 +36,11 @@ class PaymentController extends Controller
             // Handle guest checkout
             if (! $user instanceof User) {
                 // Validate guest information is provided
-                if (! $request->has('guest_name') || ! $request->has('guest_email')) {
+                if (! $request->has('guest_first_name') || ! $request->has('guest_last_name') ||
+                    ! $request->has('guest_email') || ! $request->has('guest_password')) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Name and email are required for guest checkout',
+                        'message' => 'First name, last name, email, and password are required for guest checkout',
                     ], 400);
                 }
 
@@ -47,20 +48,56 @@ class PaymentController extends Controller
                 $existingUser = User::where('email', $request->input('guest_email'))->first();
 
                 if ($existingUser) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'An account with this email already exists. Please login to continue.',
-                    ], 400);
+                    // Smart user reuse: Check if user has any completed payments
+                    $hasCompletedPayments = Payment::where('user_id', $existingUser->id)
+                        ->where('status', 'completed')
+                        ->exists();
+
+                    if ($hasCompletedPayments) {
+                        // User has active account with completed payments - must login
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'An account with this email already exists. Please login to continue.',
+                        ], 400);
+                    }
+
+                    // User exists but has no completed payments (abandoned checkout)
+                    // Reuse the account and update their details
+                    $user = $existingUser;
+                    $firstName = $request->input('guest_first_name');
+                    $lastName = $request->input('guest_last_name');
+                    $name = trim($firstName.' '.$lastName);
+
+                    $user->update([
+                        'first_name' => $firstName,
+                        'last_name' => $lastName,
+                        'name' => $name,
+                        'password' => Hash::make($request->input('guest_password')),
+                    ]);
+
+                    Log::info('Reusing existing guest user for retry checkout', [
+                        'user_id' => $user->id,
+                        'email' => $user->email,
+                    ]);
+                } else {
+                    // Create new guest user account with provided details
+                    $user = $this->createGuestUser(
+                        $request->input('guest_first_name'),
+                        $request->input('guest_last_name'),
+                        $request->input('guest_email'),
+                        $request->input('guest_password')
+                    );
                 }
 
-                // Create guest user account
-                $user = $this->createGuestUser(
-                    $request->input('guest_name'),
-                    $request->input('guest_email')
-                );
+                // Get or create organization for guest user
+                $organization = $user->currentOrganization;
+                if (! $organization) {
+                    // Create default organization if user doesn't have one
+                    $organization = $this->createDefaultOrganization($user);
+                }
 
-                // Create default organization for guest user
-                $organization = $this->createDefaultOrganization($user);
+                // Mark this payment as guest checkout for special handling in verification
+                $isGuestCheckout = true;
 
                 Log::info('Guest user created for checkout', [
                     'user_id' => $user->id,
@@ -68,6 +105,7 @@ class PaymentController extends Controller
                     'organization_id' => $organization->id,
                 ]);
             } else {
+                $isGuestCheckout = false;
                 // Authenticated user flow
                 $organization = $user->currentOrganization;
 
@@ -165,6 +203,17 @@ class PaymentController extends Controller
                     'success' => false,
                     'message' => $result['error'] ?? 'Payment verification failed',
                 ], 400);
+            }
+
+            // Send welcome email for guest checkouts (user created within last 5 minutes)
+            $paymentUser = $payment->user;
+            if ($paymentUser && $paymentUser->created_at->diffInMinutes(now()) < 5) {
+                \App\Jobs\SendWelcomeEmailJob::dispatch($paymentUser);
+
+                Log::info('Welcome email sent for guest checkout', [
+                    'user_id' => $paymentUser->id,
+                    'email' => $paymentUser->email,
+                ]);
             }
 
             return response()->json([
@@ -337,14 +386,18 @@ class PaymentController extends Controller
     }
 
     /**
-     * Create a guest user account
+     * Create a guest user account with provided password
      */
-    private function createGuestUser(string $name, string $email): User
+    private function createGuestUser(string $firstName, string $lastName, string $email, string $password): User
     {
+        $name = trim($firstName.' '.$lastName);
+
         return User::create([
+            'first_name' => $firstName,
+            'last_name' => $lastName,
             'name' => $name,
             'email' => $email,
-            'password' => Hash::make(Str::random(32)), // Random password
+            'password' => Hash::make($password), // Use password provided by user
             'email_verified_at' => now(), // Auto-verify for guest users who complete payment
         ]);
     }

@@ -10,8 +10,10 @@ export type PaymentGateway = "esewa" | "khalti" | "stripe" | "mock";
 export interface InitiatePaymentData {
   plan_slug: string;
   gateway: PaymentGateway;
-  guest_name?: string;
+  guest_first_name?: string;
+  guest_last_name?: string;
   guest_email?: string;
+  guest_password?: string;
 }
 
 export interface InitiatePaymentResponse {
