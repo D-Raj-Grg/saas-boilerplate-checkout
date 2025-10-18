@@ -116,6 +116,13 @@ export async function logoutAction(): Promise<void> {
   (await cookies()).set(AUTH_TOKEN_NAME, "", getCookieOptions({ maxAge: 0 }));
 }
 
+/**
+ * Set auth token (for guest checkout auto-login)
+ */
+export async function setAuthTokenAction(token: string): Promise<void> {
+  (await cookies()).set(AUTH_TOKEN_NAME, token, getCookieOptions());
+}
+
 export async function forgotPasswordAction(data: ForgotPasswordData): Promise<AuthActionResult> {
   try {
     const result = await remotePostPublic<{ success: boolean; data?: any; message?: string }>("/password/forgot", data);

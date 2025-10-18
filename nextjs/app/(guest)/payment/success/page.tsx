@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { verifyPaymentAction } from "@/actions/payment";
+import { setAuthTokenAction } from "@/actions/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Loader2, XCircle } from "lucide-react";
@@ -61,6 +62,12 @@ export default function PaymentSuccessPage() {
         const result = await verifyPaymentAction(paymentUuid, verificationParams);
 
         if (result.success && result.planAttached) {
+          // Auto-login for guest checkouts
+          if (result.isGuestCheckout && result.accessToken) {
+            await setAuthTokenAction(result.accessToken);
+            console.log("Guest user auto-logged in");
+          }
+
           setStatus("success");
           // Redirect to dashboard after 3 seconds
           setTimeout(() => {

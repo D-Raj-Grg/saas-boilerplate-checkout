@@ -84,6 +84,9 @@ export interface VerifyPaymentResponse {
   data?: {
     payment_status: string;
     plan_attached: boolean;
+    access_token?: string;        // For guest checkout auto-login
+    token_type?: string;
+    is_guest_checkout?: boolean;
   };
   message?: string;
 }
@@ -92,6 +95,9 @@ export interface VerifyPaymentResult {
   success: boolean;
   paymentStatus?: string;
   planAttached?: boolean;
+  accessToken?: string;            // For guest checkout auto-login
+  tokenType?: string;
+  isGuestCheckout?: boolean;
   error?: string;
 }
 
@@ -120,6 +126,9 @@ export async function verifyPaymentAction(
       success: true,
       paymentStatus: result.data?.payment_status,
       planAttached: result.data?.plan_attached,
+      accessToken: result.data?.access_token,
+      tokenType: result.data?.token_type,
+      isGuestCheckout: result.data?.is_guest_checkout,
     };
   } catch {
     return {

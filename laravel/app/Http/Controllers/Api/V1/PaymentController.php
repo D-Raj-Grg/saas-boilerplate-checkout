@@ -205,17 +205,36 @@ class PaymentController extends Controller
                 ], 400);
             }
 
-            // Send welcome email for guest checkouts (user created within last 5 minutes)
+            // Check if this was a guest checkout (user created within last 5 minutes)
             $paymentUser = $payment->user;
-            if ($paymentUser && $paymentUser->created_at->diffInMinutes(now()) < 5) {
+            $isGuestCheckout = $paymentUser && $paymentUser->created_at->diffInMinutes(now()) < 5;
+
+            if ($isGuestCheckout) {
+                // Send welcome email
                 \App\Jobs\SendWelcomeEmailJob::dispatch($paymentUser);
 
-                Log::info('Welcome email sent for guest checkout', [
+                // Generate auth token for auto-login
+                $token = $paymentUser->createToken('auth_token')->plainTextToken;
+
+                Log::info('Guest checkout completed - auto-login enabled', [
                     'user_id' => $paymentUser->id,
                     'email' => $paymentUser->email,
                 ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Payment verified successfully',
+                    'data' => [
+                        'payment_status' => 'completed',
+                        'plan_attached' => true,
+                        'access_token' => $token,
+                        'token_type' => 'Bearer',
+                        'is_guest_checkout' => true,
+                    ],
+                ]);
             }
 
+            // Regular authenticated user checkout
             return response()->json([
                 'success' => true,
                 'message' => 'Payment verified successfully',
