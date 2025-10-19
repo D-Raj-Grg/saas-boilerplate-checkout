@@ -297,6 +297,30 @@ All API calls are made through Next.js Server Actions in `/actions`:
 - User state managed in `user-store.ts`
 - Organization/workspace context synced with backend
 
+**Critical Pattern**: When switching organizations or workspaces in the UI:
+1. Always call the corresponding Server Action first (`setCurrentOrganizationAction` or `setCurrentWorkspaceAction`)
+2. Then update Zustand store (`setSelectedOrganization` or `setSelectedWorkspace`)
+3. Handle loading states and errors with toast notifications
+4. Only navigate after successful backend update
+
+Example:
+```typescript
+const handleOrganizationSelect = async (org: UserOrganization) => {
+  setIsLoading(org.uuid);
+  try {
+    const result = await setCurrentOrganizationAction(org.uuid);
+    if (result.success) {
+      setSelectedOrganization(org); // Update Zustand
+      router.push(`/organizations?org_id=${org.uuid}`);
+    } else {
+      toast.error("Failed to switch organization: " + result.error);
+    }
+  } finally {
+    setIsLoading(null);
+  }
+};
+```
+
 ## Payment Flow
 
 ### Complete User Journey
@@ -419,7 +443,10 @@ test('user can create organization', function () {
 #### General Issues
 
 **Issue**: User context not set after switching organizations
-- **Solution**: Ensure frontend calls `POST /api/v1/user/current-organization/{uuid}` after org switch
+- **Solution**: Ensure frontend calls `setCurrentOrganizationAction(uuid)` AND updates Zustand with `setSelectedOrganization(org)`. The backend API call alone is not enough - the frontend state must also be updated.
+
+**Issue**: Organization/workspace context out of sync between backend and frontend
+- **Solution**: Always follow the pattern: (1) Call Server Action, (2) Update Zustand store, (3) Navigate. Never skip the Zustand update or the backend will have different context than the frontend UI shows.
 
 **Issue**: Payment not attaching plan
 - **Solution**: Verify payment status is 'completed' and check `BillingService::attachPlanAfterPayment()` logs
