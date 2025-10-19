@@ -18,6 +18,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * @group Organizations
+ *
+ * APIs for managing organizations. Organizations are the top-level tenant in the multi-tenancy hierarchy.
+ * Each organization can have multiple workspaces, members, and a subscription plan.
+ */
 class OrganizationController extends BaseApiController
 {
     private OrganizationService $organizationService;
@@ -31,7 +37,21 @@ class OrganizationController extends BaseApiController
     }
 
     /**
-     * Display a listing of organizations accessible to the user.
+     * List all organizations
+     *
+     * Returns all organizations accessible to the authenticated user.
+     *
+     * @response 200 {
+     *   "success": true,
+     *   "data": [
+     *     {
+     *       "uuid": "uuid-here",
+     *       "name": "My Organization",
+     *       "slug": "my-organization",
+     *       "is_owner": true
+     *     }
+     *   ]
+     * }
      */
     public function index(Request $request): JsonResponse
     {
@@ -45,7 +65,23 @@ class OrganizationController extends BaseApiController
     }
 
     /**
-     * Store a newly created organization.
+     * Create a new organization
+     *
+     * Creates a new organization with a default workspace. The authenticated user becomes the organization owner.
+     *
+     * @bodyParam name string required The organization name. Example: Acme Corporation
+     * @bodyParam workspace_name string optional The name for the default workspace. Defaults to organization name. Example: Main Workspace
+     *
+     * @response 201 {
+     *   "success": true,
+     *   "data": {
+     *     "uuid": "uuid-here",
+     *     "name": "Acme Corporation",
+     *     "slug": "acme-corporation",
+     *     "is_owner": true
+     *   },
+     *   "message": "Organization created successfully"
+     * }
      */
     public function store(CreateOrganizationRequest $request): JsonResponse
     {

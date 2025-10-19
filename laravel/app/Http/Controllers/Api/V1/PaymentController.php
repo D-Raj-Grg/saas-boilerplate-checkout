@@ -20,6 +20,12 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
+/**
+ * @group Payments
+ *
+ * APIs for managing payments and subscriptions. Supports eSewa, Khalti, and Stripe payment gateways.
+ * Includes guest checkout functionality with smart user account reuse.
+ */
 class PaymentController extends Controller
 {
     public function __construct(
@@ -28,7 +34,31 @@ class PaymentController extends Controller
     ) {}
 
     /**
-     * Initiate a payment for a plan (supports guest checkout)
+     * Initiate a payment
+     *
+     * Initiates a payment for a plan. Supports both authenticated users and guest checkout.
+     * For guest checkout, provide guest_first_name, guest_last_name, guest_email, and guest_password.
+     * Smart user reuse: If email exists with no completed payments, account is reused with updated details.
+     *
+     * @unauthenticated
+     *
+     * @bodyParam plan_slug string required The slug of the plan to purchase. Example: pro-monthly
+     * @bodyParam gateway string required Payment gateway to use (esewa, khalti, stripe, mock). Example: esewa
+     * @bodyParam guest_first_name string Guest's first name (required for guest checkout). Example: John
+     * @bodyParam guest_last_name string Guest's last name (required for guest checkout). Example: Doe
+     * @bodyParam guest_email string Guest's email (required for guest checkout). Example: john@example.com
+     * @bodyParam guest_password string Guest's password (required for guest checkout, min 8 chars). Example: password123
+     *
+     * @response 200 {
+     *   "success": true,
+     *   "data": {
+     *     "payment_uuid": "uuid-here",
+     *     "gateway_data": {
+     *       "redirect_url": "https://esewa.com.np/..."
+     *     }
+     *   },
+     *   "message": "Payment initiated successfully"
+     * }
      */
     public function initiate(InitiatePaymentRequest $request): JsonResponse|Response
     {

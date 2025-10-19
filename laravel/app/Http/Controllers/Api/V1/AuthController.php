@@ -23,6 +23,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * @group Authentication
+ *
+ * APIs for user authentication and registration. Includes login, logout, user registration,
+ * and profile management endpoints.
+ */
 class AuthController extends BaseApiController
 {
     private OrganizationService $organizationService;
@@ -45,6 +51,30 @@ class AuthController extends BaseApiController
         $this->verificationService = $verificationService;
     }
 
+    /**
+     * Register a new user
+     *
+     * Creates a new user account, organization, and workspace. Optionally accepts an invitation token
+     * to join an existing organization instead of creating a new one. Sends email verification and welcome emails.
+     *
+     * @unauthenticated
+     *
+     * @bodyParam first_name string required The user's first name. Example: John
+     * @bodyParam last_name string required The user's last name. Example: Doe
+     * @bodyParam email string required The user's email address. Example: john@example.com
+     * @bodyParam password string required The user's password (min 8 characters). Example: password123
+     * @bodyParam invitation_token string optional Invitation token to join an existing organization. Example: abc123xyz
+     *
+     * @response 201 {
+     *   "success": true,
+     *   "data": {
+     *     "access_token": "1|xyz...",
+     *     "token_type": "Bearer",
+     *     "email_verified": false
+     *   },
+     *   "message": "User registered successfully. Please check your email to verify your account."
+     * }
+     */
     public function register(RegisterRequest $request): JsonResponse
     {
         return DB::transaction(function () use ($request) {
@@ -126,6 +156,33 @@ class AuthController extends BaseApiController
         });
     }
 
+    /**
+     * Login user
+     *
+     * Authenticate user with email and password. Returns access token for subsequent API requests.
+     *
+     * @unauthenticated
+     *
+     * @bodyParam email string required The user's email address. Example: john@example.com
+     * @bodyParam password string required The user's password. Example: password123
+     *
+     * @response 200 {
+     *   "success": true,
+     *   "data": {
+     *     "access_token": "1|xyz...",
+     *     "token_type": "Bearer",
+     *     "email_verified": true,
+     *     "email_verified_at": "2024-01-15T10:30:00.000000Z"
+     *   },
+     *   "message": "Login successful"
+     * }
+     * @response 422 {
+     *   "message": "The provided credentials are incorrect.",
+     *   "errors": {
+     *     "email": ["The provided credentials are incorrect."]
+     *   }
+     * }
+     */
     public function login(LoginRequest $request): JsonResponse
     {
         if (! auth()->attempt($request->only('email', 'password'))) {
@@ -150,7 +207,17 @@ class AuthController extends BaseApiController
         ], 'Login successful');
     }
 
-    // Function not used
+    /**
+     * Logout user
+     *
+     * Revokes the current access token, logging the user out of the current session.
+     *
+     * @response 200 {
+     *   "success": true,
+     *   "data": null,
+     *   "message": "Logout successful"
+     * }
+     */
     public function logout(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -161,11 +228,63 @@ class AuthController extends BaseApiController
         return $this->successResponse(null, 'Logout successful');
     }
 
+    /**
+     * Get authenticated user
+     *
+     * Returns basic information about the currently authenticated user.
+     *
+     * @response 200 {
+     *   "success": true,
+     *   "data": {
+     *     "name": "John Doe",
+     *     "email": "john@example.com",
+     *     "email_verified_at": "2024-01-15T10:30:00.000000Z"
+     *   }
+     * }
+     */
     public function user(Request $request): JsonResponse
     {
         return $this->successResponse($request->user());
     }
 
+    /**
+     * Get current user with full context
+     *
+     * Returns comprehensive user information including organizations, workspaces, permissions,
+     * and plan limits. This endpoint provides all the data needed for the frontend application.
+     *
+     * @response 200 {
+     *   "success": true,
+     *   "data": {
+     *     "user": {
+     *       "name": "John Doe",
+     *       "first_name": "John",
+     *       "last_name": "Doe",
+     *       "email": "john@example.com",
+     *       "email_verified_at": "2024-01-15T10:30:00.000000Z",
+     *       "current_organization_uuid": "uuid-here",
+     *       "current_workspace_uuid": "uuid-here"
+     *     },
+     *     "organizations": [
+     *       {
+     *         "uuid": "uuid-here",
+     *         "name": "My Organization",
+     *         "slug": "my-organization",
+     *         "is_owner": true,
+     *         "current_plan": {
+     *           "name": "Pro",
+     *           "slug": "pro-monthly",
+     *           "status": "active"
+     *         }
+     *       }
+     *     ],
+     *     "workspaces": [],
+     *     "current_workspace_permissions": [],
+     *     "current_organization_permissions": [],
+     *     "current_organization_plan_limits": {}
+     *   }
+     * }
+     */
     public function me(Request $request): JsonResponse
     {
         /** @var \App\Models\User $user */

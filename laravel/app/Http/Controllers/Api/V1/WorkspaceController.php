@@ -20,6 +20,12 @@ use App\Services\WorkspaceService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Workspaces
+ *
+ * APIs for managing workspaces. Workspaces are sub-tenants within an organization.
+ * Each workspace can have its own members, settings, and connections.
+ */
 class WorkspaceController extends BaseApiController
 {
     private WorkspaceService $workspaceService;
@@ -33,7 +39,22 @@ class WorkspaceController extends BaseApiController
     }
 
     /**
-     * Display a listing of workspaces in the current organization.
+     * List all workspaces
+     *
+     * Returns all workspaces in the current organization accessible to the authenticated user.
+     * Requires current organization context to be set via POST /api/v1/user/current-organization/{uuid}.
+     *
+     * @response 200 {
+     *   "success": true,
+     *   "data": [
+     *     {
+     *       "uuid": "uuid-here",
+     *       "name": "Main Workspace",
+     *       "slug": "main-workspace",
+     *       "role": "manager"
+     *     }
+     *   ]
+     * }
      */
     public function index(Request $request): JsonResponse
     {

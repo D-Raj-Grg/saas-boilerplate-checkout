@@ -10,10 +10,42 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * @group Plans
+ *
+ * APIs for retrieving available subscription plans. Plans include pricing, features, and limits.
+ * Plans are grouped by billing cycle (monthly/yearly) and support multiple currencies.
+ */
 class PlanController extends Controller
 {
     /**
-     * Get all available plans grouped by plan group
+     * List all plans
+     *
+     * Returns all active subscription plans with their features and limits.
+     * Plans are grouped by plan group (e.g., "pro-monthly", "pro-yearly").
+     *
+     * @unauthenticated
+     *
+     * @response 200 {
+     *   "success": true,
+     *   "data": {
+     *     "plans": {
+     *       "pro-monthly": {
+     *         "uuid": "uuid-here",
+     *         "group": "pro",
+     *         "name": "Pro",
+     *         "slug": "pro-monthly",
+     *         "description": "For growing teams",
+     *         "price": 29.99,
+     *         "currency": "USD",
+     *         "billing_cycle": "monthly",
+     *         "is_free": false
+     *       }
+     *     },
+     *     "features": [],
+     *     "limits": {}
+     *   }
+     * }
      */
     public function index(Request $request): JsonResponse
     {

@@ -15,6 +15,12 @@ use App\Services\InvitationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Invitations
+ *
+ * APIs for managing organization invitations. Users can be invited to join organizations with specific roles.
+ * Invitations expire after 7 days and can be accepted, declined, or resent.
+ */
 class InvitationController extends BaseApiController
 {
     private InvitationService $invitationService;
@@ -26,7 +32,23 @@ class InvitationController extends BaseApiController
     }
 
     /**
-     * Display the specified invitation.
+     * Get invitation details
+     *
+     * Returns details of a specific invitation including organization and inviter information.
+     *
+     * @urlParam invitation string required The invitation UUID. Example: uuid-here
+     *
+     * @response 200 {
+     *   "success": true,
+     *   "data": {
+     *     "uuid": "uuid-here",
+     *     "email": "user@example.com",
+     *     "organization": {"name": "Acme Corp"},
+     *     "role": "member",
+     *     "status": "pending",
+     *     "expires_at": "2024-01-22T10:30:00.000000Z"
+     *   }
+     * }
      */
     public function show(Invitation $invitation): JsonResponse
     {
