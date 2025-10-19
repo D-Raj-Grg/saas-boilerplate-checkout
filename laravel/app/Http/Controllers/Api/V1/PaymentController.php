@@ -10,6 +10,7 @@ use App\Models\Organization;
 use App\Models\Payment;
 use App\Models\User;
 use App\Services\BillingService;
+use App\Services\WorkspaceService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -22,7 +23,8 @@ use Illuminate\Support\Str;
 class PaymentController extends Controller
 {
     public function __construct(
-        protected BillingService $billingService
+        protected BillingService $billingService,
+        protected WorkspaceService $workspaceService
     ) {}
 
     /**
@@ -92,8 +94,26 @@ class PaymentController extends Controller
                 // Get or create organization for guest user
                 $organization = $user->currentOrganization;
                 if (! $organization) {
-                    // Create default organization if user doesn't have one
+                    // Create default organization and workspace if user doesn't have one
                     $organization = $this->createDefaultOrganization($user);
+                } else {
+                    // Organization exists (retry checkout), ensure workspace exists
+                    if (! $user->current_workspace_id) {
+                        $workspace = $organization->workspaces()->first();
+                        if (! $workspace) {
+                            // Create workspace if missing
+                            $workspace = $this->workspaceService->create($organization, $user, [
+                                'name' => $user->name."'s Workspace",
+                            ]);
+
+                            Log::info('Created missing workspace for retry checkout', [
+                                'user_id' => $user->id,
+                                'organization_id' => $organization->id,
+                                'workspace_id' => $workspace->id,
+                            ]);
+                        }
+                        $user->update(['current_workspace_id' => $workspace->id]);
+                    }
                 }
 
                 // Mark this payment as guest checkout for special handling in verification
@@ -422,7 +442,7 @@ class PaymentController extends Controller
     }
 
     /**
-     * Create default organization for a guest user
+     * Create default organization and workspace for a guest user
      */
     private function createDefaultOrganization(User $user): Organization
     {
@@ -437,6 +457,20 @@ class PaymentController extends Controller
 
         // Set as current organization (using ID, not UUID)
         $user->update(['current_organization_id' => $organization->id]);
+
+        // Create default workspace (matching signup flow)
+        $workspace = $this->workspaceService->create($organization, $user, [
+            'name' => $user->name."'s Workspace",
+        ]);
+
+        // Set as current workspace
+        $user->update(['current_workspace_id' => $workspace->id]);
+
+        Log::info('Created default organization and workspace for guest user', [
+            'user_id' => $user->id,
+            'organization_id' => $organization->id,
+            'workspace_id' => $workspace->id,
+        ]);
 
         return $organization;
     }

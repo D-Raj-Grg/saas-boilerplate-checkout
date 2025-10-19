@@ -15,6 +15,7 @@ import { WorkspacesList } from "./workspaces-list";
 import Link from "next/link";
 import { logoutAction } from "@/actions/auth";
 import { toast } from "sonner";
+import { setCurrentOrganizationAction } from "@/actions/user-preferences";
 
 interface OrganizationsSwitcherProps {
   orgId?: string;
@@ -61,8 +62,9 @@ const testimonials: Testimonial[] = [
 
 export function OrganizationsSwitcher({ orgId }: OrganizationsSwitcherProps) {
   const router = useRouter();
-  const { userData, clearUser } = useUserStore();
+  const { userData, clearUser, setSelectedOrganization } = useUserStore();
   const [createOrgOpen, setCreateOrgOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState<string | null>(null);
 
   // Random testimonial selection that changes on page refresh
   const randomTestimonial = useMemo(() => {
@@ -83,9 +85,24 @@ export function OrganizationsSwitcher({ orgId }: OrganizationsSwitcherProps) {
 
   const organizations = userData?.organizations || [];
 
-  const handleOrganizationSelect = (org: UserOrganization) => {
-    // Navigate to workspaces view for this organization
-    router.push(`/organizations?org_id=${org.uuid}`);
+  const handleOrganizationSelect = async (org: UserOrganization) => {
+    setIsLoading(org.uuid);
+
+    try {
+      const result = await setCurrentOrganizationAction(org.uuid);
+
+      if (result.success) {
+        setSelectedOrganization(org);
+        // Navigate to workspaces view for this organization
+        router.push(`/organizations?org_id=${org.uuid}`);
+      } else {
+        toast.error("Failed to switch organization: " + result.error);
+      }
+    } catch {
+      toast.error("An unexpected error occurred");
+    } finally {
+      setIsLoading(null);
+    }
   };
 
   const handleLogout = async () => {
@@ -166,13 +183,15 @@ export function OrganizationsSwitcher({ orgId }: OrganizationsSwitcherProps) {
 
                 // Create workspace names string
                 const workspaceNames = orgWorkspaces.map((w) => w.name).join(", ");
+                const isOrgLoading = isLoading === org.uuid;
 
                 return (
                   <button
                     key={org.uuid}
                     onClick={() => handleOrganizationSelect(org)}
+                    disabled={isOrgLoading}
                     className={cn(
-                      "w-full p-4 bg-white text-left transition-all duration-200 hover:bg-gray-50",
+                      "w-full p-4 bg-white text-left transition-all duration-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed",
                       index !== organizations.length - 1 &&
                       "border-b border-[#E5E5E5]"
                     )}
@@ -188,6 +207,12 @@ export function OrganizationsSwitcher({ orgId }: OrganizationsSwitcherProps) {
                           </p>
                         )}
                       </div>
+                      {isOrgLoading && (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent"></div>
+                          <span>Switching...</span>
+                        </div>
+                      )}
                     </div>
                   </button>
                 );
